@@ -1,0 +1,12 @@
+import test,{after,before} from 'node:test';
+import assert from 'node:assert/strict';
+import {server} from '../server.mjs';
+let base;
+before(async()=>{await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}`;});
+after(async()=>{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));});
+test('home serves real HTML with restrictive security headers',async()=>{const r=await fetch(base);assert.equal(r.status,200);assert.match(await r.text(),/A quiet moment/);assert.match(r.headers.get('content-security-policy'),/frame-ancestors 'none'/);});
+test('missing files return a real 404, not the homepage',async()=>{const r=await fetch(base+'/missing.js');assert.equal(r.status,404);assert.equal(await r.text(),'Not found');});
+test('writes are not accepted by the static reader',async()=>{assert.equal((await fetch(base,{method:'POST'})).status,405);});
+test('encoded separators cannot expose source files',async()=>{const r=await fetch(base+'/%2e%2e%2fpackage.json');assert.equal(r.status,403);});
+test('malformed URL encoding is rejected',async()=>assert.equal((await fetch(base+'/%ZZ')).status,400));
+test('HEAD responses contain no body',async()=>{const r=await fetch(base,{method:'HEAD'});assert.equal(r.status,200);assert.equal(await r.text(),'');});

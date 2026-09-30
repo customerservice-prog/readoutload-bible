@@ -1,0 +1,14 @@
+{
+  "name": "readoutload-bible",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A free, private, multi-tradition scripture reader",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check public/app.js && node --check public/core.js && node --check scripts/build.mjs && node --check server.mjs"
+  }
+}

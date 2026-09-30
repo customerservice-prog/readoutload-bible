@@ -1,0 +1,37 @@
+name: Reader checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run check && npm test
+      - run: npm run build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.55.0 && python -m playwright install --with-deps chromium
+      - name: Desktop and mobile browser checks
+        run: |
+          node server.mjs > /tmp/read-aloud-server.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:3000/healthz && break || sleep 1; done
+          python tests/browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reader-tested-build
+          path: |
+            public/
+            test-results/
+            server.mjs
+            package.json
+          retention-days: 7

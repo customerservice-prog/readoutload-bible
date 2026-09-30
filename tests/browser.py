@@ -1,0 +1,66 @@
+"""Run against a built library: python tests/browser.py. Requires Playwright + Chromium.
+Speech-controller tests use a fake device engine; they do NOT verify audible voices.
+"""
+import json, os
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+BASE=os.getenv('TEST_BASE_URL','http://127.0.0.1:3000')
+OUT=Path('test-results'); OUT.mkdir(exist_ok=True)
+SPEECH_MOCK="""(() => {
+  window.__spoken=[]; window.__utterance=null;
+  class Utterance { constructor(text){this.text=text;} }
+  Object.defineProperty(window,'SpeechSynthesisUtterance',{value:Utterance,configurable:true});
+  Object.defineProperty(window,'speechSynthesis',{value:{getVoices:()=>[{name:'Test English',lang:'en-US',voiceURI:'test',localService:true,default:true}],addEventListener:()=>{},cancel:()=>{window.__utterance=null;},speak:u=>{window.__utterance=u;window.__spoken.push(u.text);setTimeout(()=>{if(window.__utterance===u)u.onstart?.();},0);}},configurable:true});
+})();"""
+with sync_playwright() as p:
+    executable=os.getenv('CHROMIUM_PATH')
+    browser=p.chromium.launch(headless=True,**({'executable_path':executable} if executable else {}),args=['--no-sandbox'])
+    context=browser.new_context(viewport={'width':1440,'height':1050})
+    context.add_init_script(SPEECH_MOCK)
+    page=context.new_page(); errors=[]
+    page.on('pageerror',lambda error:errors.append(str(error)))
+    page.goto(BASE); page.locator('[data-work]').first.wait_for()
+    assert page.locator('[data-work]').count()==5
+    page.screenshot(path=str(OUT/'desktop-library.png'),full_page=True)
+    for work in ['bible-asv','tanakh-jps','quran-pickthall','gita-arnold','dhammapada-muller']:
+        page.locator(f'[data-work="{work}"]').click();page.locator('.verse').first.wait_for()
+        assert len(page.locator('.verse').first.inner_text())>20
+        page.locator('#close-reader').click()
+    page.locator('[data-work="bible-asv"]').click();page.locator('.verse').first.wait_for()
+    page.locator('#chapter-select').select_option('2');page.locator('.verse').first.wait_for()
+    page.locator('#verse-select').select_option('8')
+    assert page.locator('#verse-select').input_value()=='8'
+    page.reload();page.locator('#continue-reading').wait_for();page.locator('#continue-reading').click();page.locator('.verse').first.wait_for()
+    assert page.locator('#chapter-select').input_value()=='2'
+    assert page.locator('#verse-select').input_value()=='8'
+    page.locator('#read-aloud').click();page.get_by_role('button',name='Pause',exact=True).wait_for()
+    assert len(page.evaluate('window.__spoken'))==1
+    page.locator('#read-aloud').click();assert page.locator('#read-aloud').inner_text()=='Resume'
+    page.locator('#read-aloud').click();page.get_by_role('button',name='Pause',exact=True).wait_for()
+    # Simulate end-of-utterance to exercise sequencing, not audio quality.
+    page.evaluate('window.__utterance.onend()');page.wait_for_timeout(80)
+    assert len(page.evaluate('window.__spoken'))>=3
+    page.locator('#stop-audio').click();assert page.locator('#read-aloud').inner_text()=='Read aloud'
+    page.screenshot(path=str(OUT/'desktop-reader.png'))
+    page.locator('#reader-settings').click();page.locator('#theme').select_option('night')
+    page.locator('#font-size').fill('29');page.locator('#font-size').dispatch_event('input')
+    page.get_by_role('button',name='Close settings',exact=True).click()
+    assert page.locator('html').get_attribute('data-theme')=='night'
+    page.locator('#close-reader').click()
+    # Complete-library boundary: final chapter and passage have no next page.
+    page.locator('[data-work="dhammapada-muller"]').click();page.locator('.verse').first.wait_for()
+    page.locator('#chapter-select').select_option('26');page.locator('.verse').first.wait_for()
+    page.locator('#verse-select').select_option('423');assert page.locator('#next-page').is_disabled()
+    page.keyboard.press('Escape');assert not page.locator('#reader').is_visible()
+    assert not errors,errors
+    context.close()
+    mobile=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
+    mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.goto(BASE);page.locator('[data-work]').first.wait_for()
+    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.screenshot(path=str(OUT/'mobile-library.png'),full_page=True)
+    page.locator('[data-work="quran-pickthall"]').click();page.locator('.verse').first.wait_for()
+    page.screenshot(path=str(OUT/'mobile-reader.png'))
+    assert page.evaluate('document.querySelector("#reader").getBoundingClientRect().width <= innerWidth')
+    assert page.locator('#read-aloud').is_visible() and page.locator('#next-page').is_visible()
+    mobile.close();browser.close()
+print('Browser checks passed: five editions, resume, audio controller, boundaries, desktop and mobile. Audible device output not tested.')
