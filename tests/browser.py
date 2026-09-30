@@ -18,8 +18,9 @@ with sync_playwright() as p:
     browser=p.chromium.launch(headless=True,**({'executable_path':executable} if executable else {}),args=['--no-sandbox'])
     context=browser.new_context(viewport={'width':1440,'height':1050})
     context.add_init_script(SPEECH_MOCK)
-    page=context.new_page(); errors=[]
+    page=context.new_page(); errors=[]; console=[]
     page.on('pageerror',lambda error:errors.append(str(error)))
+    page.on('console',lambda msg:console.append(f'{msg.type}: {msg.text}'))
     page.goto(BASE); page.locator('[data-work]').first.wait_for()
     assert page.locator('[data-work]').count()==5
     page.screenshot(path=str(OUT/'desktop-library.png'),full_page=True)
@@ -30,6 +31,7 @@ with sync_playwright() as p:
         except Exception:
             print('FAILED WORK:',work,flush=True)
             print('PAGE ERRORS:',errors,flush=True)
+            print('CONSOLE:',console[-30:],flush=True)
             print('READING CONTENT:',page.locator('#reading-content').text_content(),flush=True)
             print('READER MESSAGE:',page.locator('#reader-message').text_content(),flush=True)
             print('READER OPEN:',page.locator('#reader').get_attribute('open'),flush=True)
