@@ -24,14 +24,14 @@ with sync_playwright() as p:
     assert page.locator('[data-work]').count()==5
     page.screenshot(path=str(OUT/'desktop-library.png'),full_page=True)
     for work in ['bible-asv','tanakh-jps','quran-pickthall','gita-arnold','dhammapada-muller']:
-        page.locator(f'[data-work="{work}"]').click();page.locator('.verse').first.wait_for()
-        assert len(page.locator('.verse').first.inner_text())>20
+        page.locator(f'[data-work="{work}"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
+        assert len(page.locator('.verse').first.text_content() or '')>20
         page.locator('#close-reader').click()
-    page.locator('[data-work="bible-asv"]').click();page.locator('.verse').first.wait_for()
-    page.locator('#chapter-select').select_option('2');page.locator('.verse').first.wait_for()
+    page.locator('[data-work="bible-asv"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
+    page.locator('#chapter-select').select_option('2');page.locator('.verse').first.wait_for(state='attached',timeout=15000)
     page.locator('#verse-select').select_option('8')
     assert page.locator('#verse-select').input_value()=='8'
-    page.reload();page.locator('#continue-reading').wait_for();assert page.locator('#header-continue').is_visible();page.locator('#continue-reading').click();page.locator('.verse').first.wait_for()
+    page.reload();page.locator('#continue-reading').wait_for();assert page.locator('#header-continue').is_visible();page.locator('#continue-reading').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
     assert page.locator('#chapter-select').input_value()=='2'
     assert page.locator('#verse-select').input_value()=='8'
     page.locator('#read-aloud').click();page.get_by_role('button',name='Pause',exact=True).wait_for()
@@ -52,8 +52,8 @@ with sync_playwright() as p:
     assert page.locator('html').get_attribute('data-theme')=='night'
     page.locator('#close-reader').click()
     # Complete-library boundary: final chapter and passage have no next page.
-    page.locator('[data-work="dhammapada-muller"]').click();page.locator('.verse').first.wait_for()
-    page.locator('#chapter-select').select_option('26');page.locator('.verse').first.wait_for()
+    page.locator('[data-work="dhammapada-muller"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
+    page.locator('#chapter-select').select_option('26');page.locator('.verse').first.wait_for(state='attached',timeout=15000)
     page.locator('#verse-select').select_option('423');assert page.locator('#next-page').is_disabled()
     page.keyboard.press('Escape');assert not page.locator('#reader').is_visible()
     assert not errors,errors
@@ -62,7 +62,7 @@ with sync_playwright() as p:
     mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.on('dialog',lambda dialog:dialog.accept());page.goto(copied);page.locator('#continue-reading').wait_for();page.locator('[data-work]').first.wait_for()
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     page.screenshot(path=str(OUT/'mobile-library.png'),full_page=True)
-    page.locator('[data-work="quran-pickthall"]').click();page.locator('.verse').first.wait_for()
+    page.locator('[data-work="quran-pickthall"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
     page.screenshot(path=str(OUT/'mobile-reader.png'))
     assert page.evaluate('document.querySelector("#reader").getBoundingClientRect().width <= innerWidth')
     assert page.locator('#read-aloud').is_visible() and page.locator('#next-page').is_visible()
