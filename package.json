@@ -1,10 +1,12 @@
 {
-  "name": "readoutload-bible",
+  "name": "godears",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "A free, private, multi-tradition scripture reader",
-  "engines": { "node": ">=22" },
+  "description": "GodEars — a free, private, multi-tradition sacred text reader with read-aloud narration",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "start": "node server.mjs",

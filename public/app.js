@@ -346,7 +346,7 @@ $('remember').addEventListener('change',()=>{
 });
 $('export-progress').addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify(cleanState(state),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='read-aloud-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('settings-status').textContent='Backup created. It contains your reading choices, so keep it somewhere private.';
+  a.href=url;a.download='godears-reading-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('settings-status').textContent='Backup created. It contains your reading choices, so keep it somewhere private.';
 });
 $('import-progress').addEventListener('click',()=>$('import-file').click());
 $('copy-progress-link').addEventListener('click',copyProgressLink);
