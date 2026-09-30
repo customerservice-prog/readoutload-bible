@@ -818,6 +818,19 @@ dialog::backdrop{background:rgba(18,35,29,.68);backdrop-filter:blur(10px)}
   .sanctuary-shelf{bottom:82px;height:220px}
   .shelf-bible{height:205px}.shelf-tanakh{height:188px}.shelf-quran{height:211px}.shelf-gita{height:177px}.shelf-dhamma{height:194px}
 }
+/* Narrow desktop windows (821–959px) cannot fit the headline beside the 470px reading-room artwork, so the
+   artwork used to spill past the right edge. Reuse the stacked tablet hero there instead. */
+@media(min-width:821px) and (max-width:959px){
+  .sanctuary-hero.hero{grid-template-columns:1fr;gap:36px;padding:52px 0 58px}
+  .sanctuary-hero .hero-copy{text-align:center;margin:auto}
+  .sanctuary-hero .hero-eyebrow,.sanctuary-hero .hero-actions{justify-content:center}
+  .sanctuary-hero .hero-copy>p{margin:auto}
+  .sanctuary-hero .hero-stats{justify-content:center}
+  .sanctuary-stage{min-height:500px}
+  .sanctuary-arch{height:460px;width:min(470px,92vw)}
+  .sanctuary-shelf{bottom:82px;height:220px}
+  .shelf-bible{height:205px}.shelf-tanakh{height:188px}.shelf-quran{height:211px}.shelf-gita{height:177px}.shelf-dhamma{height:194px}
+}
 @media(max-width:560px){
   .sanctuary-hero{padding-top:38px}
   .sanctuary-stage{min-height:360px}
