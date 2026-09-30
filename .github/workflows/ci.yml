@@ -20,6 +20,22 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install playwright==1.55.0 && python -m playwright install --with-deps chromium
+      - name: Wait for exact production commit
+        env:
+          PROD_URL: https://read-aloud-production-148a.up.railway.app
+        run: |
+          echo "Waiting for Railway to serve $GITHUB_SHA"
+          for i in $(seq 1 90); do
+            served=$(curl -fsS "$PROD_URL/healthz" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{try{console.log(JSON.parse(s).commit||'')}catch{console.log('')}})")
+            if [ "$served" = "$GITHUB_SHA" ]; then
+              echo "Production is serving the exact commit."
+              exit 0
+            fi
+            echo "Attempt $i: production reports $served"
+            sleep 4
+          done
+          echo "Production never reached $GITHUB_SHA"
+          exit 1
       - name: Desktop and mobile production browser checks
         env:
           TEST_BASE_URL: https://read-aloud-production-148a.up.railway.app

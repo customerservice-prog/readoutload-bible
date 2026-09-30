@@ -42,7 +42,7 @@ export const server = http.createServer(async (req,res)=>{
       const catalog=JSON.parse(await readFile(resolve(root,'data/catalog.json'),'utf8'));
       if(catalog.works.length!==5)throw new Error('Library incomplete');
       res.writeHead(200,{'Content-Type':types['.json'],'Cache-Control':'no-store'});
-      return res.end(req.method==='HEAD'?'':JSON.stringify({status:'ok',works:catalog.works.map(w=>({id:w.id,books:w.books.length,chapters:w.chapterCount,passages:w.verseCount}))}));
+      return res.end(req.method==='HEAD'?'':JSON.stringify({status:'ok',commit:process.env.RAILWAY_GIT_COMMIT_SHA||process.env.GIT_COMMIT_SHA||'local',works:catalog.works.map(w=>({id:w.id,books:w.books.length,chapters:w.chapterCount,passages:w.verseCount}))}));
     }
     if(htmlAliases.has(pathname)){
       res.writeHead(308,{'Location':htmlAliases.get(pathname),'Cache-Control':'public, max-age=86400'});return res.end();
