@@ -24,7 +24,17 @@ with sync_playwright() as p:
     assert page.locator('[data-work]').count()==5
     page.screenshot(path=str(OUT/'desktop-library.png'),full_page=True)
     for work in ['bible-asv','tanakh-jps','quran-pickthall','gita-arnold','dhammapada-muller']:
-        page.locator(f'[data-work="{work}"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
+        page.locator(f'[data-work="{work}"]').click()
+        try:
+            page.locator('.verse').first.wait_for(state='attached',timeout=15000)
+        except Exception:
+            print('FAILED WORK:',work,flush=True)
+            print('PAGE ERRORS:',errors,flush=True)
+            print('READING CONTENT:',page.locator('#reading-content').text_content(),flush=True)
+            print('READER MESSAGE:',page.locator('#reader-message').text_content(),flush=True)
+            print('READER OPEN:',page.locator('#reader').get_attribute('open'),flush=True)
+            page.screenshot(path=str(OUT/f'debug-{work}.png'))
+            raise
         assert len(page.locator('.verse').first.text_content() or '')>20
         page.locator('#close-reader').click()
     page.locator('[data-work="bible-asv"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
