@@ -16,7 +16,7 @@ const htmlAliases = new Map([...aliases].map(([pretty,file])=>[file,pretty]));
 const rootPath = resolve(root);
 function safePathname(url) { return decodeURIComponent(new URL(url,'http://localhost').pathname); }
 async function sendFile(req,res,pathname,status=200) {
-  const mapped = pathname === '/' ? '/index.html' : (aliases.get(pathname) || pathname);
+  const mapped = pathname === '/' ? '/index.html' : (pathname === '/favicon.ico' ? '/icon.svg' : (aliases.get(pathname) || pathname));
   const path = resolve(root,'.'+mapped);
   if (!path.startsWith(rootPath + sep) || pathname.includes('\0') || pathname.includes('\\')) {
     res.writeHead(403,{'Content-Type':'text/plain; charset=utf-8'}); return res.end('Forbidden');

@@ -9,6 +9,7 @@ test('home serves SEO-ready HTML with restrictive security headers',async()=>{
   assert.match(html,/Read sacred texts/);assert.match(html,/rel="canonical"/);assert.match(html,/application\/ld\+json/);
   assert.match(r.headers.get('content-security-policy'),/frame-ancestors 'none'/);assert.equal(r.headers.get('x-frame-options'),'DENY');
 });
+test('legacy favicon request resolves without a 404',async()=>{const r=await fetch(base+'/favicon.ico');assert.equal(r.status,200);assert.match(r.headers.get('content-type'),/image\/svg\+xml/);});
 test('robots and sitemap are public and reference the reader',async()=>{
   const robots=await fetch(base+'/robots.txt');assert.equal(robots.status,200);assert.match(await robots.text(),/Sitemap:/);
   const sitemap=await fetch(base+'/sitemap.xml');assert.equal(sitemap.status,200);const xml=await sitemap.text();assert.match(xml,/\/bible</);assert.match(xml,/\/quran</);
