@@ -1,4 +1,4 @@
-# Read Aloud
+# GodEars
 
 A free, non-commercial scripture reader. Choose a faith tradition, open a focused reading popup, turn pages, or press **Read aloud**. No account, payment, advertising, analytics, microphone permission, or AI-generated scripture.
 

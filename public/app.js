@@ -125,7 +125,7 @@ async function fetchBookFresh(work, book) {
       return data;
     }catch(error){
       lastError=error;
-      console.warn(`Read Aloud: ${key} load attempt ${attempt+1} failed`,error);
+      console.warn(`GodEars: ${key} load attempt ${attempt+1} failed`,error);
       if(attempt<2)await wait(attempt===0?250:700);
     }
   }
@@ -175,7 +175,7 @@ async function loadLocation(b,c,verse = null,automatic = false,lastPage = false)
   } catch (error) {
     if(token!==requestToken||!$('reader').open)return false;
     stopSpeech();$('reading-content').classList.remove('is-loading');
-    console.error('Read Aloud could not open this location',error);
+    console.error('GodEars could not open this location',error);
     if(previous){
       activeBook=previous.activeBook;bookIndex=previous.bookIndex;chapterIndex=previous.chapterIndex;selectedVerse=previous.selectedVerse;pageIndex=previous.pageIndex;pages=previous.pages;
       $('book-select').value=activeWork.books[bookIndex].id;
@@ -294,7 +294,7 @@ function populateVoices() {
 function testVoice() {
   if(!speechSupported){$('voice-test-status').textContent='Read aloud is not supported in this browser.';return;}
   synth.cancel();synth.resume?.();
-  const sample=new SpeechSynthesisUtterance('Read Aloud voice check. Your listening voice is ready.');
+  const sample=new SpeechSynthesisUtterance('GodEars voice check. Your listening voice is ready.');
   sample.lang='en-US';sample.rate=state.preferences.rate;
   const voices=synth.getVoices(),preferred=voices.find(v=>v.voiceURI===$('voice').value&&/^en\b/i.test(v.lang)),fallback=voices.find(v=>/^en\b/i.test(v.lang)&&v.default)||voices.find(v=>/^en\b/i.test(v.lang));
   if(preferred||fallback)sample.voice=preferred||fallback;
@@ -354,7 +354,7 @@ $('import-file').addEventListener('change',async event=>{
   const file=event.target.files[0];if(!file)return;
   try {
     if(file.size>500000)throw new Error('This file is too large to be a reading backup.');
-    const raw=JSON.parse(await file.text());if(raw.version!==1||!raw.progress||typeof raw.progress!=='object'||Array.isArray(raw.progress))throw new Error('This is not a supported Read Aloud backup.');
+    const raw=JSON.parse(await file.text());if(raw.version!==1||!raw.progress||typeof raw.progress!=='object'||Array.isArray(raw.progress))throw new Error('This is not a supported GodEars backup.');
     const restored=cleanState(raw);if(!confirm('Restore this backup? Saved places and settings in this browser will be replaced.'))return;
     if($('reader').open)$('reader').close();state=restored;applyPreferences();persist(false);updateHome();$('settings-status').textContent='Backup restored. Your saved place is ready in the library.';
   }catch(error){$('settings-status').textContent=error instanceof SyntaxError?'That file is not valid JSON.':error.message;}

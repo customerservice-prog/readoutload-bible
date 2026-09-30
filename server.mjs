@@ -29,6 +29,11 @@ async function sendFile(req,res,pathname,status=200) {
   res.end(req.method==='HEAD'?undefined:body);
 }
 export const server = http.createServer(async (req,res)=>{
+  const host=(req.headers.host||'').split(':')[0].toLowerCase();
+  if(host==='www.godears.org'){
+    res.writeHead(308,{'Location':`https://godears.org${req.url||'/'}`,'Cache-Control':'public, max-age=86400'});
+    return res.end();
+  }
   res.setHeader('X-Content-Type-Options','nosniff');
   res.setHeader('X-Frame-Options','DENY');
   res.setHeader('Referrer-Policy','no-referrer');
@@ -62,6 +67,6 @@ export const server = http.createServer(async (req,res)=>{
 });
 if(process.argv[1]===fileURLToPath(import.meta.url)){
   const port=Number(process.env.PORT||3000);
-  server.listen(port,'0.0.0.0',()=>console.log(`Read Aloud listening on ${port}`));
+  server.listen(port,'0.0.0.0',()=>console.log(`GodEars listening on ${port}`));
   process.on('SIGTERM',()=>server.close());
 }

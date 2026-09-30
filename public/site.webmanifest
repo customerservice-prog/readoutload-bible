@@ -1,11 +1,11 @@
 {
-  "name": "Read Aloud",
-  "short_name": "Read Aloud",
-  "description": "A free, private scripture reader with read-aloud and saved reading progress.",
+  "name": "GodEars",
+  "short_name": "GodEars",
+  "description": "A free, private reading sanctuary for selected sacred texts with read-aloud and saved reading progress.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f3efe5",
-  "theme_color": "#173f34",
+  "background_color": "#101b17",
+  "theme_color": "#101b17",
   "icons": [
     {
       "src": "/icon.svg",
