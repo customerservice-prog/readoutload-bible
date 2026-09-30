@@ -74,7 +74,7 @@ test('every public page and SEO file uses GodEars branding and the godears.org d
   assert.match(await (await fetch(base+'/robots.txt')).text(),/^Sitemap: https:\/\/godears\.org\/sitemap\.xml$/m);
   const manifest=await (await fetch(base+'/site.webmanifest')).json();assert.equal(manifest.name,'GodEars');assert.equal(manifest.start_url,'/');
 });
-test('downloadable progress backup uses the GodEars brand',async()=>{const js=await (await fetch(base+'/app.js')).text();assert.match(js,/godears-reading-progress\\.json/);assert.doesNotMatch(js,/read-aloud-progress\\.json/);});
+test('downloadable progress backup uses the GodEars brand',async()=>{const js=await (await fetch(base+'/app.js')).text();assert.match(js,/godears-reading-progress\.json/);assert.doesNotMatch(js,/read-aloud-progress\.json/);});
 test('search landing pages have pretty canonical routes',async()=>{
   const r=await fetch(base+'/bible');assert.equal(r.status,200);const html=await r.text();assert.match(html,/Read the Bible Online/);assert.match(html,/rel="canonical"/);
   const old=await fetch(base+'/bible.html',{redirect:'manual'});assert.equal(old.status,308);assert.equal(old.headers.get('location'),'/bible');
