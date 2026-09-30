@@ -825,3 +825,37 @@ dialog::backdrop{background:rgba(18,35,29,.68);backdrop-filter:blur(10px)}
   .sanctuary-plaque{bottom:16px;padding:8px 11px}.sanctuary-plaque strong{font-size:10px}
   .reading-content:after{right:22px;width:18px;height:40px}
 }
+
+
+/* Mobile collection correction: keep book cards below the heading, never under it. */
+@media(max-width:559px){
+  .library-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+    align-items:stretch;
+  }
+  .tradition-card,
+  .tradition-card.featured,
+  .tradition-card:nth-child(4),
+  .tradition-card:nth-child(5){
+    grid-column:1!important;
+    grid-row:auto!important;
+    width:100%;
+    min-height:154px;
+    grid-template-columns:72px minmax(0,1fr) 22px;
+    grid-template-rows:auto;
+    text-align:left;
+    padding:17px 15px;
+    gap:13px;
+    position:relative;
+    z-index:1;
+  }
+  .book-cover,.featured .book-cover{
+    width:54px;height:80px;margin:0 auto;
+  }
+  .card-copy h3,.featured .card-copy h3{font-size:22px}
+  .card-copy p{font-size:9px;line-height:1.55}
+  .card-arrow{justify-self:end;align-self:center}
+  .section-heading{position:relative;z-index:2;margin-bottom:24px}
+}
