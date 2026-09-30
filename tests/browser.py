@@ -71,7 +71,7 @@ with sync_playwright() as p:
     assert not errors,errors
     context.close()
     mobile=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
-    mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.on('dialog',lambda dialog:dialog.accept());page.goto(copied);page.locator('#continue-reading').wait_for();page.locator('[data-work]').first.wait_for()
+    mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.on('dialog',lambda dialog:dialog.accept());page.goto(copied);page.locator('#mobile-continue').wait_for();page.locator('[data-work]').first.wait_for()
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     page.screenshot(path=str(OUT/'mobile-library.png'),full_page=True)
     page.locator('[data-work="quran-pickthall"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
