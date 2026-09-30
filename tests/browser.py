@@ -84,6 +84,12 @@ with sync_playwright() as p:
     page.keyboard.press('Escape');assert not page.locator('#reader').is_visible()
     assert not errors,errors
     context.close()
+    # Narrow desktop windows: the reading-room artwork must stay inside the viewport in every hero layout.
+    for width in (840,900,960,1024):
+        sized=browser.new_context(viewport={'width':width,'height':900});sized_page=sized.new_page();sized_page.goto(BASE);sized_page.locator('[data-work]').first.wait_for()
+        stage=sized_page.evaluate("(()=>{const r=document.querySelector('.sanctuary-stage').getBoundingClientRect();return {left:r.left,right:r.right,clientWidth:document.documentElement.clientWidth}})()")
+        assert stage['left']>=-1 and stage['right']<=stage['clientWidth']+1,(width,stage)
+        sized.close()
     mobile=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
     mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.on('dialog',lambda dialog:dialog.accept());page.goto(copied);page.locator('#mobile-continue').wait_for();page.locator('[data-work]').first.wait_for()
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
