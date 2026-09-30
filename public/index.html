@@ -164,7 +164,7 @@
   <div class="reader-shell">
     <header class="reader-header">
       <div class="reader-brand"><span class="reader-logo"><svg><use href="#i-book"/></svg></span><div><span id="reader-tradition" class="eyebrow"></span><h2 id="reader-title"></h2></div></div>
-      <div class="reader-center-note"><span class="live-dot"></span> Your place saves as you read</div>
+      <div class="reader-center-note"><span class="live-dot"></span><span class="reader-place-copy"><small>YOUR PLACE</small><strong id="reader-place">Opening…</strong></span></div>
       <div class="reader-actions"><button id="reader-settings" class="icon-button" aria-label="Reader settings"><svg><use href="#i-settings"/></svg></button><button id="close-reader" class="icon-button close-button" aria-label="Close reader"><svg><use href="#i-close"/></svg></button></div>
     </header>
 
@@ -181,13 +181,14 @@
     <div id="reader-message" class="reader-message" role="status" hidden></div>
 
     <footer class="reader-footer">
+      <div class="reader-progress" role="progressbar" aria-label="Chapter page progress" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1"><span id="reader-progress-bar"></span></div>
       <div class="page-navigation">
         <button id="prev-page" class="button subtle nav-button"><svg class="reverse"><use href="#i-arrow"/></svg><span>Previous</span></button>
         <div class="page-info"><strong id="page-label"></strong><span id="saved-label" class="saved-label"></span></div>
         <button id="next-page" class="button subtle nav-button"><span>Next page</span><svg><use href="#i-arrow"/></svg></button>
       </div>
       <div class="audio-bar">
-        <div class="audio-label"><span class="eyebrow">LISTEN</span><span id="audio-status">Uses your device’s voice</span></div>
+        <div class="audio-label"><span class="eyebrow">LISTEN FROM YOUR PLACE</span><span id="audio-status">Uses your device’s voice</span></div>
         <button id="read-aloud" class="button primary audio-primary"><svg><use href="#i-volume"/></svg><span>Read aloud</span></button>
         <button id="stop-audio" class="icon-button stop-button" aria-label="Stop reading aloud" disabled><svg><use href="#i-stop"/></svg></button>
         <label class="speed-field"><span>Speed</span><select id="speed"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label>

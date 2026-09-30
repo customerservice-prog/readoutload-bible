@@ -44,6 +44,9 @@ with sync_playwright() as p:
     page.evaluate('window.__utterance.onend()');page.wait_for_timeout(80)
     assert len(page.evaluate('window.__spoken'))>=3
     page.locator('#stop-audio').click();assert page.locator('#read-aloud').inner_text()=='Read aloud'
+    assert 'Genesis 2' in page.locator('#reader-place').inner_text()
+    assert page.locator('#reader-progress-bar').evaluate('(e)=>parseFloat(e.style.width)')>0
+    assert page.evaluate('document.querySelector("#reading-content").getBoundingClientRect().width < document.querySelector("#reader").getBoundingClientRect().width')
     page.screenshot(path=str(OUT/'desktop-reader.png'))
     page.locator('#reader-settings').click();assert page.locator('#test-voice').is_visible();page.locator('#copy-progress-link').click();page.wait_for_timeout(50);copied=page.evaluate('window.__copied');assert '#restore=' in copied;page.locator('#theme').select_option('night')
     page.locator('#font-size').fill('29');page.locator('#font-size').dispatch_event('input')
@@ -65,5 +68,7 @@ with sync_playwright() as p:
     page.screenshot(path=str(OUT/'mobile-reader.png'))
     assert page.evaluate('document.querySelector("#reader").getBoundingClientRect().width <= innerWidth')
     assert page.locator('#read-aloud').is_visible() and page.locator('#next-page').is_visible()
+    assert page.evaluate('document.querySelector("#reading-content").getBoundingClientRect().right <= innerWidth')
+    assert page.evaluate('document.querySelector("#reading-content").getBoundingClientRect().left >= 0')
     mobile.close();browser.close()
 print('Browser checks passed: five editions, resume, audio controller, boundaries, desktop and mobile. Audible device output not tested.')

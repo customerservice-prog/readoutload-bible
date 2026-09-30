@@ -170,6 +170,10 @@ function renderPage() {
   });
   $('reading-scroll').scrollTop=0;
   $('page-label').textContent=`Page ${pageIndex+1} of ${pages.length} · ${activeWork.chapterLabel} ${ch.number}`;
+  const progress=Math.max(0,Math.min(100,((pageIndex+1)/pages.length)*100));
+  $('reader-progress-bar').style.width=`${progress}%`;
+  $('reader-progress').setAttribute('aria-valuemax',String(pages.length));
+  $('reader-progress').setAttribute('aria-valuenow',String(pageIndex+1));
   $('prev-page').disabled=pageIndex===0&&!adjacentChapter(activeWork.books,bookIndex,chapterIndex,-1);
   $('next-page').disabled=pageIndex===pages.length-1&&!adjacentChapter(activeWork.books,bookIndex,chapterIndex,1);
   highlight();
@@ -181,7 +185,12 @@ function highlight() {
     element.classList.toggle('selected',selected);element.classList.toggle('speaking',selected&&speechState==='playing');
     element.setAttribute('aria-pressed',String(selected));
   }
-  if(chapter())$('verse-select').value=chapter().verses[selectedVerse].number;
+  if(chapter()){
+    const verse=chapter().verses[selectedVerse];
+    $('verse-select').value=verse.number;
+    const heading=activeWork.books.length>1?`${activeBook.name} ${chapter().number}`:`${activeWork.chapterLabel} ${chapter().number}`;
+    $('reader-place').textContent=`${heading} · ${activeWork.unit} ${verse.number}`;
+  }
 }
 async function goPage(direction,automatic=false) {
   if(busy)return false;if(!automatic)stopSpeech();chunkIndex=0;
