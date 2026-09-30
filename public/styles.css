@@ -957,3 +957,9 @@ dialog::backdrop{background:rgba(18,35,29,.68);backdrop-filter:blur(10px)}
   #mobile-continue[hidden]{display:none!important}
   #mobile-continue:not([hidden]){display:flex!important}
 }
+
+
+/* Instant page positioning on phones prevents taps racing smooth-scroll animations. */
+@media(max-width:559px){
+  html{scroll-behavior:auto!important}
+}
