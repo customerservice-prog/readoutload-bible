@@ -2,7 +2,7 @@ import test,{after,before} from 'node:test';
 import assert from 'node:assert/strict';
 import {server} from '../server.mjs';
 let base;
-before(async()=>{await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=\`http://127.0.0.1:\${server.address().port}\`;});
+before(async()=>{await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}`;});
 after(async()=>{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));});
 test('home serves SEO-ready HTML with restrictive security headers',async()=>{
   const r=await fetch(base);assert.equal(r.status,200);const html=await r.text();
