@@ -859,3 +859,49 @@ dialog::backdrop{background:rgba(18,35,29,.68);backdrop-filter:blur(10px)}
   .card-arrow{justify-self:end;align-self:center}
   .section-heading{position:relative;z-index:2;margin-bottom:24px}
 }
+
+
+/* Final phone flow: no grid overlap is possible after restoring progress. */
+@media(max-width:559px){
+  #continue-section{
+    position:relative!important;
+    z-index:0!important;
+    margin-bottom:58px!important;
+    overflow:hidden;
+  }
+  #library{
+    position:relative!important;
+    z-index:1!important;
+    clear:both;
+  }
+  #library .section-heading{
+    position:relative!important;
+    z-index:auto!important;
+    margin-bottom:26px!important;
+  }
+  #library-grid{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:12px!important;
+    width:100%!important;
+    position:relative!important;
+    z-index:auto!important;
+  }
+  #library-grid .tradition-card{
+    display:grid!important;
+    grid-template-columns:72px minmax(0,1fr) 22px!important;
+    grid-template-rows:auto!important;
+    position:relative!important;
+    inset:auto!important;
+    transform:none!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-height:150px!important;
+    margin:0!important;
+    flex:0 0 auto!important;
+    z-index:auto!important;
+  }
+  #library-grid .tradition-card:hover{transform:none!important}
+  #library-grid .card-resume{white-space:normal}
+}
