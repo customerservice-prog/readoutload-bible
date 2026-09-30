@@ -203,9 +203,13 @@ function renderPage() {
   $('reading-scroll').scrollTop=0;
   $('page-label').textContent=`Page ${pageIndex+1} of ${pages.length} · ${activeWork.chapterLabel} ${ch.number}`;
   const progress=Math.max(0,Math.min(100,((pageIndex+1)/pages.length)*100));
-  $('reader-progress-bar').style.width=`${progress}%`;
-  $('reader-progress').setAttribute('aria-valuemax',String(pages.length));
-  $('reader-progress').setAttribute('aria-valuenow',String(pageIndex+1));
+  const progressBar=$('reader-progress-bar');
+  const progressTrack=$('reader-progress')||document.querySelector('.reader-progress');
+  if(progressBar)progressBar.style.width=`${progress}%`;
+  if(progressTrack){
+    progressTrack.setAttribute('aria-valuemax',String(pages.length));
+    progressTrack.setAttribute('aria-valuenow',String(pageIndex+1));
+  }
   $('prev-page').disabled=pageIndex===0&&!adjacentChapter(activeWork.books,bookIndex,chapterIndex,-1);
   $('next-page').disabled=pageIndex===pages.length-1&&!adjacentChapter(activeWork.books,bookIndex,chapterIndex,1);
   highlight();
@@ -221,7 +225,8 @@ function highlight() {
     const verse=chapter().verses[selectedVerse];
     $('verse-select').value=verse.number;
     const heading=activeWork.books.length>1?`${activeBook.name} ${chapter().number}`:`${activeWork.chapterLabel} ${chapter().number}`;
-    $('reader-place').textContent=`${heading} · ${activeWork.unit} ${verse.number}`;
+    const place=$('reader-place');
+    if(place)place.textContent=`${heading} · ${activeWork.unit} ${verse.number}`;
   }
 }
 async function goPage(direction,automatic=false) {
