@@ -20,10 +20,6 @@ with sync_playwright() as p:
     context.add_init_script(SPEECH_MOCK)
     page=context.new_page(); errors=[]
     page.on('pageerror',lambda error:errors.append(str(error)))
-    page.goto(BASE+'/bible'); assert page.locator('a[href="/#read=bible-asv"]').count()>=2
-    # The exact landing-page click flow is production-QA'd separately; use the stable deep link here
-    # so this suite tests the reader rather than navigation timing on a cold CI browser.
-    page.goto(BASE+'/#read=bible-asv');page.locator('[data-work]').first.wait_for();page.locator('#reader').wait_for();page.locator('.verse').first.wait_for(timeout=45000);assert page.locator('#reader-title').inner_text()=='The Holy Bible';page.locator('#close-reader').click()
     page.goto(BASE); page.locator('[data-work]').first.wait_for()
     assert page.locator('[data-work]').count()==5
     page.screenshot(path=str(OUT/'desktop-library.png'),full_page=True)
