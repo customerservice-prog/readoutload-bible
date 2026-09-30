@@ -20,11 +20,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install playwright==1.55.0 && python -m playwright install --with-deps chromium
-      - name: Desktop and mobile browser checks
-        run: |
-          node server.mjs > /tmp/read-aloud-server.log 2>&1 &
-          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:3000/healthz && break || sleep 1; done
-          python tests/browser.py
+      - name: Desktop and mobile production browser checks
+        env:
+          TEST_BASE_URL: https://read-aloud-production-148a.up.railway.app
+        run: python tests/browser.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
