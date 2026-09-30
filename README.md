@@ -1,6 +1,6 @@
 # GodEars
 
-A free, non-commercial scripture reader. Choose a faith tradition, open a focused reading popup, turn pages, or press **Read aloud**. No account, payment, advertising, analytics, microphone permission, or AI-generated scripture.
+[GodEars](https://godears.org) is a free, non-commercial sacred text reader. Choose a text, open a focused reading popup, turn pages, or press **Read aloud**. No account, payment, advertising, analytics, microphone permission, or AI-generated scripture.
 
 ## Experience
 
@@ -23,7 +23,17 @@ npm start
 
 Open `http://localhost:3000`. `PORT` is the only optional environment variable. Source files are fetched during the build and cached in `.sources/`; the deployed reader requests only same-origin static files. A failed source validation fails the build instead of shipping an incomplete library. Build output is `public/data/` and is intentionally not committed.
 
-For static hosting, build once and publish **the entire `public/` folder**, including `data/`. Relative paths also support a project subdirectory. Do not publish the repository root. Docker and Railway configuration are included, but no paid hosting service or domain is provisioned by this code. Free visitor access is separate from hosting costs.
+For static hosting, build once and publish **the entire `public/` folder**, including `data/`. Relative paths also support a project subdirectory. Do not publish the repository root. Free visitor access is separate from hosting costs.
+
+## Production domain
+
+Production runs on Railway (Dockerfile + `railway.toml`) at the canonical origin **https://godears.org**. Canonical links, Open Graph/Twitter URLs, JSON-LD, `sitemap.xml` and `robots.txt` all use that origin.
+
+- DNS is managed at Namecheap (nameservers unchanged): `CNAME @ → y0rmru4i.up.railway.app`, `CNAME www → m7ptvec7.up.railway.app`, plus Railway's `_railway-verify` and `_railway-verify.www` TXT ownership records. Railway issues and renews the Let's Encrypt certificates for both names.
+- `www.godears.org` answers with a permanent `308` redirect to the same path on `https://godears.org`.
+- The generated Railway hostname (`read-aloud-production-148a.up.railway.app`) also permanently redirects to `https://godears.org`, **except** `/healthz` and `/data/*`, which it keeps serving (with `X-Robots-Tag: noindex`) so platform health checks and builds keep working. Railway's own health checks use the `healthcheck.railway.app` host and are never redirected.
+- Builds fetch previously verified Quran, Gita and Dhammapada source copies from `https://godears.org/data/…`, then the Railway hostname mirror, then the original publisher, validating every candidate the same way.
+- Browser storage is per domain, so reading places saved while the site lived on the Railway hostname are not carried over to godears.org automatically.
 
 ## Included editions and boundaries
 
@@ -59,4 +69,4 @@ npm run build
 python tests/browser.py
 ```
 
-The GitHub Actions workflow builds real source data and tests desktop/mobile reading, saved-place restoration, page boundaries and the speech controller. Browser speech tests use a mocked device engine: they do **not** verify audible output on a physical iPhone/Android device. `/healthz` returns verified catalog counts or fails when the library is missing.
+The GitHub Actions workflow builds real source data and, for every push to `main`, waits for Railway to serve that exact commit on https://godears.org, checks TLS plus the `www` and Railway-hostname redirects, and tests the SEO landing pages, desktop/mobile reading, saved-place restoration, page boundaries and the speech controller. Browser speech tests use a mocked device engine: they do **not** verify audible output on a physical iPhone/Android device. `/healthz` returns verified catalog counts or fails when the library is missing.

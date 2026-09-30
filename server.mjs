@@ -14,7 +14,33 @@ const aliases = new Map([
 ]);
 const htmlAliases = new Map([...aliases].map(([pretty,file])=>[file,pretty]));
 const rootPath = resolve(root);
+// GodEars is served from one canonical origin. www and Railway's generated hostname permanently redirect to it.
+export const CANONICAL_ORIGIN = 'https://godears.org';
+export const RAILWAY_HOST = 'read-aloud-production-148a.up.railway.app';
+const WWW_HOST = 'www.godears.org';
+// The Railway hostname keeps answering health checks and serving /data/ so builds can still use it as a
+// source mirror if godears.org is unreachable; everything else there moves to the canonical domain.
+const servedOnRailwayHost = pathname => pathname === '/healthz' || pathname.startsWith('/data/');
 function safePathname(url) { return decodeURIComponent(new URL(url,'http://localhost').pathname); }
+function requestHost(req) { return String(req.headers.host||'').trim().toLowerCase().replace(/:\d+$/,'').replace(/\.$/,''); }
+// Same path and query on the canonical origin, going straight to the pretty landing URL to avoid redirect chains.
+// Built from a parsed URL so absolute-form or protocol-relative targets can never point anywhere else.
+function canonicalLocation(url) {
+  try {
+    const parsed = new URL(url||'/','http://localhost');
+    let path = parsed.pathname;
+    try {
+      const decoded = decodeURIComponent(path);
+      if (htmlAliases.has(decoded)) path = htmlAliases.get(decoded);
+      else if (decoded.length>1 && decoded.endsWith('/') && aliases.has(decoded.slice(0,-1))) path = decoded.slice(0,-1);
+    } catch {}
+    return CANONICAL_ORIGIN + path + parsed.search;
+  } catch { return CANONICAL_ORIGIN + '/'; }
+}
+function permanentRedirect(res, location) {
+  res.writeHead(308,{'Location':location,'Cache-Control':'public, max-age=86400'});
+  return res.end();
+}
 async function sendFile(req,res,pathname,status=200) {
   const mapped = pathname === '/' ? '/index.html' : (pathname === '/favicon.ico' ? '/icon.svg' : (aliases.get(pathname) || pathname));
   const path = resolve(root,'.'+mapped);
@@ -29,10 +55,13 @@ async function sendFile(req,res,pathname,status=200) {
   res.end(req.method==='HEAD'?undefined:body);
 }
 export const server = http.createServer(async (req,res)=>{
-  const host=(req.headers.host||'').split(':')[0].toLowerCase();
-  if(host==='www.godears.org'){
-    res.writeHead(308,{'Location':`https://godears.org${req.url||'/'}`,'Cache-Control':'public, max-age=86400'});
-    return res.end();
+  const host=requestHost(req);
+  if(host===WWW_HOST)return permanentRedirect(res,canonicalLocation(req.url));
+  if(host===RAILWAY_HOST){
+    let pathname='';
+    try{pathname=safePathname(req.url);}catch{}
+    if(!servedOnRailwayHost(pathname))return permanentRedirect(res,canonicalLocation(req.url));
+    res.setHeader('X-Robots-Tag','noindex');
   }
   res.setHeader('X-Content-Type-Options','nosniff');
   res.setHeader('X-Frame-Options','DENY');

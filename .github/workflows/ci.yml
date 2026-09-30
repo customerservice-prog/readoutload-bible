@@ -5,6 +5,11 @@ on:
   pull_request:
 permissions:
   contents: read
+env:
+  # Canonical production origin. The Railway hostname only keeps /healthz and /data/ and redirects everything else.
+  PROD_URL: https://godears.org
+  WWW_URL: https://www.godears.org
+  RAILWAY_URL: https://read-aloud-production-148a.up.railway.app
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -20,11 +25,11 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install playwright==1.55.0 && python -m playwright install --with-deps chromium
+      # Only commits on main are deployed by Railway, so production checks run for pushes, not pull requests.
       - name: Wait for exact production commit
-        env:
-          PROD_URL: https://read-aloud-production-148a.up.railway.app
+        if: github.event_name == 'push'
         run: |
-          echo "Waiting for Railway to serve $GITHUB_SHA"
+          echo "Waiting for $PROD_URL to serve $GITHUB_SHA"
           for i in $(seq 1 90); do
             served=$(curl -fsS "$PROD_URL/healthz" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{try{console.log(JSON.parse(s).commit||'')}catch{console.log('')}})")
             if [ "$served" = "$GITHUB_SHA" ]; then
@@ -36,9 +41,49 @@ jobs:
           done
           echo "Production never reached $GITHUB_SHA"
           exit 1
+      - name: Canonical domain, TLS and redirect checks
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          # curl verifies each TLS certificate; any certificate problem fails this step.
+          expect_redirect() {
+            local got
+            got=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "$1")
+            echo "$1 -> $got"
+            [ "$got" = "308 $2" ] || { echo "::error::$1 should permanently redirect to $2"; exit 1; }
+          }
+          # Railway's edge upgrades plain HTTP; the app never sees port 80 traffic.
+          for url in http://godears.org/ http://www.godears.org/; do
+            got=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "$url")
+            echo "$url -> $got"
+            case "$got" in 30[1278]\ https://*) ;; *) echo "::error::$url must redirect to HTTPS"; exit 1;; esac
+          done
+          expect_redirect "$WWW_URL/" "$PROD_URL/"
+          expect_redirect "$WWW_URL/quran?from=ci" "$PROD_URL/quran?from=ci"
+          expect_redirect "$RAILWAY_URL/" "$PROD_URL/"
+          expect_redirect "$RAILWAY_URL/bible.html" "$PROD_URL/bible"
+          expect_redirect "$RAILWAY_URL/sitemap.xml" "$PROD_URL/sitemap.xml"
+          for path in /healthz /data/catalog.json; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' "$RAILWAY_URL$path")
+            echo "$RAILWAY_URL$path -> $code"
+            [ "$code" = 200 ] || { echo "::error::Railway hostname must keep serving $path"; exit 1; }
+          done
+          for path in / /bible /tanakh /quran /bhagavad-gita /dhammapada /sitemap.xml /robots.txt /site.webmanifest; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' "$PROD_URL$path")
+            echo "$PROD_URL$path -> $code"
+            [ "$code" = 200 ] || { echo "::error::$PROD_URL$path returned $code"; exit 1; }
+          done
+          robots=$(curl -fsS "$PROD_URL/robots.txt")
+          sitemap=$(curl -fsS "$PROD_URL/sitemap.xml")
+          home=$(curl -fsS "$PROD_URL/")
+          grep -Fqx "Sitemap: $PROD_URL/sitemap.xml" <<<"$robots" || { echo "::error::robots.txt sitemap URL"; exit 1; }
+          grep -Fq "<loc>$PROD_URL/dhammapada</loc>" <<<"$sitemap" || { echo "::error::sitemap URLs"; exit 1; }
+          if grep -Fq 'railway.app' <<<"$sitemap$robots$home"; then echo "::error::Railway hostname still referenced"; exit 1; fi
+          grep -Fq '<link rel="canonical" href="https://godears.org/">' <<<"$home" || { echo "::error::home canonical URL"; exit 1; }
       - name: Desktop and mobile production browser checks
+        if: github.event_name == 'push'
         env:
-          TEST_BASE_URL: https://read-aloud-production-148a.up.railway.app
+          TEST_BASE_URL: https://godears.org
         run: python tests/browser.py
       - uses: actions/upload-artifact@v4
         if: always()

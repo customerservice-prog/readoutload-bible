@@ -21,8 +21,21 @@ with sync_playwright() as p:
     page=context.new_page(); errors=[]; console=[]
     page.on('pageerror',lambda error:errors.append(str(error)))
     page.on('console',lambda msg:console.append(f'{msg.type}: {msg.text}'))
+    # SEO landing pages: GodEars branding, canonical godears.org URLs, and a working path into the reader.
+    for slug in ['bible','tanakh','quran','bhagavad-gita','dhammapada']:
+        page.goto(f'{BASE}/{slug}')
+        assert page.title().endswith('| GodEars'),page.title()
+        assert page.locator('link[rel=canonical]').get_attribute('href')==f'https://godears.org/{slug}'
+        assert (page.locator('.content-header .brand-copy').text_content() or '').strip()=='GodEars'
+    page.locator('.content-hero .hero-button').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
+    assert 'Dhammapada' in (page.locator('#reader-title').text_content() or '')
     page.goto(BASE); page.locator('[data-work]').first.wait_for()
     assert page.locator('[data-work]').count()==5
+    assert page.title().startswith('GodEars'),page.title()
+    assert page.locator('link[rel=canonical]').get_attribute('href')=='https://godears.org/'
+    assert (page.locator('.site-header .brand-copy').text_content() or '').startswith('GodEars')
+    # The dark hero backdrop must render above the page background so the light headline stays legible.
+    assert page.evaluate("getComputedStyle(document.querySelector('.sanctuary-hero')).isolation")=='isolate'
     page.screenshot(path=str(OUT/'desktop-library.png'),full_page=True)
     for work in ['bible-asv','tanakh-jps','quran-pickthall','gita-arnold','dhammapada-muller']:
         page.locator(f'[data-work="{work}"]').click()
@@ -38,6 +51,7 @@ with sync_playwright() as p:
             page.screenshot(path=str(OUT/f'debug-{work}.png'))
             raise
         assert len(page.locator('.verse').first.text_content() or '')>20
+        assert 'could not open' not in (page.locator('#reading-content').text_content() or '').lower()
         page.locator('#close-reader').click()
     page.locator('[data-work="bible-asv"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
     page.locator('#chapter-select').select_option('2');page.locator('.verse').first.wait_for(state='attached',timeout=15000)
@@ -73,6 +87,10 @@ with sync_playwright() as p:
     mobile=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
     mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.on('dialog',lambda dialog:dialog.accept());page.goto(copied);page.locator('#mobile-continue').wait_for();page.locator('[data-work]').first.wait_for()
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    # Full-bleed decoration must not widen the phone layout viewport, or fixed UI slides off-screen.
+    assert page.evaluate('innerWidth')==390,page.evaluate('innerWidth')
+    bar=page.locator('#mobile-continue').bounding_box()
+    assert bar and bar['x']>=0 and bar['x']+bar['width']<=390.5 and bar['y']+bar['height']<=844.5,bar
     page.screenshot(path=str(OUT/'mobile-library.png'),full_page=True)
     rects=page.evaluate("""[...document.querySelectorAll('#library-grid [data-work]')].map(el=>{const r=el.getBoundingClientRect();return {id:el.dataset.work,top:r.top+scrollY,bottom:r.bottom+scrollY,left:r.left,right:r.right,width:r.width,height:r.height}})""")
     assert len(rects)==5 and all(r['width']>0 and r['height']>=100 and r['left']>=0 and r['right']<=390.5 for r in rects),rects

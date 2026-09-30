@@ -593,7 +593,9 @@ dialog::backdrop{background:rgba(18,35,29,.68);backdrop-filter:blur(10px)}
   border-bottom-color:rgba(239,231,210,.14);
 }
 .site-header:before{
-  content:"";position:absolute;inset:0 -100vw -1px;z-index:-1;
+  /* Full-bleed band exactly one viewport wide: -100vw insets widened the page and, on phones,
+     stretched the layout viewport so fixed UI (Continue reading, notices) landed off-screen. */
+  content:"";position:absolute;top:0;bottom:-1px;left:50%;width:100vw;transform:translateX(-50%);z-index:-1;
   background:linear-gradient(180deg,#0d1714,#101b17);
 }
 .site-header .brand-copy,.site-header nav{color:#eee6d5}
@@ -608,9 +610,11 @@ dialog::backdrop{background:rgba(18,35,29,.68);backdrop-filter:blur(10px)}
   min-height:720px;
   color:#f4eddd;
   position:relative;
+  /* Keep the dark full-bleed backdrop (::before, z-index:-2) inside the hero instead of behind the page background. */
+  isolation:isolate;
 }
 .sanctuary-hero:before{
-  content:"";position:absolute;inset:0 -100vw;z-index:-2;
+  content:"";position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);z-index:-2;
   background:
     radial-gradient(circle at 72% 38%,rgba(194,163,99,.12),transparent 28rem),
     radial-gradient(circle at 18% 10%,rgba(98,130,113,.13),transparent 30rem),
