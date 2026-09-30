@@ -1,5 +1,6 @@
 import test,{after,before} from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
 import {server} from '../server.mjs';
 let base;
 before(async()=>{await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}`;});
@@ -9,7 +10,7 @@ test('home serves SEO-ready HTML with restrictive security headers',async()=>{
   assert.match(html,/Five traditions/);assert.match(html,/GodEars/);assert.match(html,/https:\/\/godears\.org/);assert.match(html,/rel="canonical"/);assert.match(html,/application\/ld\+json/);
   assert.match(r.headers.get('content-security-policy'),/frame-ancestors 'none'/);assert.equal(r.headers.get('x-frame-options'),'DENY');
 });
-test('www host redirects permanently to the canonical GodEars domain',async()=>{const r=await fetch(base+'/quran?x=1',{headers:{Host:'www.godears.org'},redirect:'manual'});assert.equal(r.status,308);assert.equal(r.headers.get('location'),'https://godears.org/quran?x=1');});
+test('www host redirects permanently to the canonical GodEars domain',async()=>{const port=server.address().port;const r=await new Promise((resolve,reject)=>{const req=http.request({host:'127.0.0.1',port,path:'/quran?x=1',headers:{Host:'www.godears.org'}},resolve);req.on('error',reject);req.end();});assert.equal(r.statusCode,308);assert.equal(r.headers.location,'https://godears.org/quran?x=1');r.resume();});
 test('legacy favicon request resolves without a 404',async()=>{const r=await fetch(base+'/favicon.ico');assert.equal(r.status,200);assert.match(r.headers.get('content-type'),/image\/svg\+xml/);});
 test('robots and sitemap are public and reference the reader',async()=>{
   const robots=await fetch(base+'/robots.txt');assert.equal(robots.status,200);assert.match(await robots.text(),/Sitemap:/);
