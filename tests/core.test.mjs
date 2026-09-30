@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {defaults,cleanState,readState,writeState,paginate,pageForVerse,speechChunks,adjacentChapter,escapeHTML,STORE_KEY} from '../public/core.js';
-import {parseBible,parseQuran,parseGita,parseDhamma,validateBooks} from '../scripts/build.mjs';
+import {parseBible,parseQuran,parseGita,parseDhamma,validateBooks,SOURCES,sourceUrls,catalogMetadata} from '../scripts/build.mjs';
 test('defaults do not assert a religion or create fake progress',()=>{assert.equal(defaults().lastWork,null);assert.deepEqual(defaults().progress,{});});
 test('reading places survive serialization at verse precision',()=>{let value=null;const storage={getItem:()=>value,setItem:(k,v)=>{assert.equal(k,STORE_KEY);value=v;}};const state=defaults();state.lastWork='bible-asv';state.progress['bible-asv']={book:'genesis',chapter:12,verse:'8',updatedAt:5};assert.equal(writeState(storage,state),true);assert.deepEqual(readState(storage).state,state);});
 test('editions retain independent progress',()=>{const state=defaults();state.progress['bible-asv']={book:'genesis',chapter:2,verse:'3',updatedAt:1};state.progress['tanakh-jps']={book:'genesis',chapter:5,verse:'7',updatedAt:2};assert.equal(cleanState(state).progress['bible-asv'].chapter,2);assert.equal(cleanState(state).progress['tanakh-jps'].chapter,5);});
@@ -22,3 +22,14 @@ test('poetic paragraphs use passage labels, preserving words and lines',()=>{con
 test('reviewed empty ASV slots remain disclosed, never invented',()=>{const books=parseBible(JSON.stringify({books:[{name:'Matthew',chapters:[{chapter:17,verses:[{verse:20,text:'Test fixture.'},{verse:21,text:''}]}]}]}),{id:'bible-asv'});assert.deepEqual(books[0].chapters[0].omittedVerseNumbers,['21']);assert.equal(books[0].chapters[0].verses.length,1);});
 test('unreviewed missing scripture fails instead of being silently omitted',()=>assert.throws(()=>parseBible(JSON.stringify({books:[{name:'Genesis',chapters:[{chapter:1,verses:[{verse:1,text:''}]}]}]}),{id:'bible-asv'}),/Unreviewed/));
 test('indented poetic chapter markers are parsed',()=>{const books=parseGita('CHAPTER I\n\nFirst chapter.\n  HERE ENDS CHAPTER I.\n\n  CHAPTER II\n\nSecond chapter.\n  HERE ENDETH CHAPTER II.');assert.equal(books[0].chapters.length,2);assert.equal(books[0].chapters[1].verses[0].text,'Second chapter.');});
+test('builds prefer godears.org copies, then the Railway mirror, then the upstream publisher',()=>{
+  for(const id of ['quran-pickthall','gita-arnold','dhammapada-muller']){
+    const urls=sourceUrls(SOURCES.find(s=>s.id===id));
+    assert.equal(urls[0],`https://godears.org/data/${id}/source.txt`);
+    assert.equal(urls[1],`https://read-aloud-production-148a.up.railway.app/data/${id}/source.txt`);
+    assert.equal(urls.length,3);assert.doesNotMatch(urls[2],/godears|railway/);
+  }
+});
+test('published catalog metadata never includes download or checksum plumbing',()=>{
+  for(const source of SOURCES){const metadata=catalogMetadata(source);for(const key of ['url','mirrors','fallback','blob','sha256','type','expectedBooks','expectedChapters'])assert.ok(!(key in metadata),`${source.id} leaks ${key}`);assert.equal(metadata.id,source.id);}
+});
