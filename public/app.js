@@ -106,17 +106,34 @@ async function loadLibrary() {
 }
 function setBusy(value) {
   busy = value;
+  $('reader').classList.toggle('reader-busy',value);
   for (const id of ['book-select','chapter-select','verse-select','prev-page','next-page']) $(id).disabled = value;
   $('reading-content').setAttribute('aria-busy', String(value));
   updateAudioUI();
 }
+const wait = ms => new Promise(resolve=>setTimeout(resolve,ms));
+async function fetchBookFresh(work, book) {
+  const key=`${work.id}/${book.id}`;
+  const version=encodeURIComponent(work.sourceSha256||'1');
+  let lastError;
+  for(let attempt=0;attempt<3;attempt++){
+    try{
+      const response=await fetch(`./data/${key}.json?v=${version}`,{cache:'no-store'});
+      if(!response.ok)throw new Error(`Book request failed (${response.status})`);
+      const data=await response.json();
+      if(data.workId!==work.id||data.id!==book.id||!Array.isArray(data.chapters)||data.chapters.length!==book.chapters.length)throw new Error('Book data did not match the library catalog');
+      return data;
+    }catch(error){
+      lastError=error;
+      console.warn(`Read Aloud: ${key} load attempt ${attempt+1} failed`,error);
+      if(attempt<2)await wait(attempt===0?250:700);
+    }
+  }
+  throw lastError||new Error('Book unavailable');
+}
 async function getBook(work, book) {
-  const key = `${work.id}/${book.id}`;
-  if (!bookCache.has(key)) bookCache.set(key, fetch(`./data/${key}.json`).then(async response=>{
-    if(!response.ok)throw new Error('Book unavailable'); const data=await response.json();
-    if(data.workId!==work.id||data.id!==book.id||!Array.isArray(data.chapters)||data.chapters.length!==book.chapters.length)throw new Error('Invalid book data');
-    return data;
-  }).catch(error=>{bookCache.delete(key);throw error;}));
+  const key=`${work.id}/${book.id}/${work.sourceSha256||'1'}`;
+  if(!bookCache.has(key))bookCache.set(key,fetchBookFresh(work,book).catch(error=>{bookCache.delete(key);throw error;}));
   return bookCache.get(key);
 }
 async function openWork(id) {
@@ -135,7 +152,11 @@ async function openWork(id) {
 async function loadLocation(b,c,verse = null,automatic = false,lastPage = false) {
   if(!automatic)stopSpeech();
   const token=++requestToken, work=activeWork;
-  setBusy(true); message(''); $('reading-content').innerHTML='<div class="load-message" role="status">Opening your page…</div>';
+  const previous=activeBook?{activeBook,bookIndex,chapterIndex,selectedVerse,pageIndex,pages:[...pages]}:null;
+  const hadReadablePage=Boolean($('reading-content').querySelector('.verse'));
+  setBusy(true);message('');
+  if(!hadReadablePage)$('reading-content').innerHTML='<div class="load-message" role="status">Opening your page…</div>';
+  else $('reading-content').classList.add('is-loading');
   $('book-select').value=work.books[b].id;
   $('chapter-select').replaceChildren(...work.books[b].chapters.map(ch=>new Option(`${work.chapterLabel} ${ch.number}${ch.title?' · '+ch.title:''}`,String(ch.number))));
   $('chapter-select').value=String(work.books[b].chapters[c].number);
@@ -149,14 +170,25 @@ async function loadLocation(b,c,verse = null,automatic = false,lastPage = false)
     pages=paginate(chapter().verses);pageIndex=lastPage?pages.length-1:pageForVerse(pages,selectedVerse);
     if(lastPage)selectedVerse=pages[pageIndex].start;
     $('verse-select').replaceChildren(...chapter().verses.map(v=>new Option(v.number,v.number)));
+    $('reading-content').classList.remove('is-loading');
     setBusy(false);renderPage();rememberPlace();return true;
-  } catch {
+  } catch (error) {
     if(token!==requestToken||!$('reader').open)return false;
-    stopSpeech();
-    $('reading-content').innerHTML='<div class="load-message" role="alert">This page could not be opened.<br>Your previous saved place is safe.<br><button class="button subtle" id="retry-book">Try again</button></div>';
+    stopSpeech();$('reading-content').classList.remove('is-loading');
+    console.error('Read Aloud could not open this location',error);
+    if(previous){
+      activeBook=previous.activeBook;bookIndex=previous.bookIndex;chapterIndex=previous.chapterIndex;selectedVerse=previous.selectedVerse;pageIndex=previous.pageIndex;pages=previous.pages;
+      $('book-select').value=activeWork.books[bookIndex].id;
+      $('chapter-select').replaceChildren(...activeWork.books[bookIndex].chapters.map(ch=>new Option(`${activeWork.chapterLabel} ${ch.number}${ch.title?' · '+ch.title:''}`,String(ch.number))));
+      $('chapter-select').value=String(chapter().number);
+      $('verse-select').replaceChildren(...chapter().verses.map(v=>new Option(v.number,v.number)));
+      setBusy(false);renderPage();message('That page had a loading hiccup, so we kept your last readable page. Choose the chapter or verse again to retry.');
+      return false;
+    }
+    setBusy(false);
+    $('reading-content').innerHTML='<div class="load-message" role="alert"><strong>We could not open this page yet.</strong><br>Your saved place is safe. The reader already retried automatically.<br><button class="button subtle" id="retry-book">Try again</button></div>';
     $('retry-book').addEventListener('click',()=>loadLocation(b,c,verse,false,lastPage));
-    // Keep navigation disabled: old book data must not overwrite the saved place.
-    $('book-select').disabled=false;return false;
+    return false;
   }
 }
 function renderPage() {
