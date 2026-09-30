@@ -54,6 +54,7 @@
     <nav aria-label="Main navigation">
       <a href="#library">Library</a>
       <a href="#how-it-works">How it works</a>
+      <button id="header-continue" class="header-continue" hidden>Continue <svg><use href="#i-arrow"/></svg></button>
       <button id="open-settings" class="text-button">Settings <svg><use href="#i-settings"/></svg></button>
       <a class="nav-cta" href="#library">Start reading</a>
     </nav>
@@ -66,7 +67,7 @@
         <h1 id="hero-title">Read sacred texts.<br><em>Or simply press play.</em></h1>
         <p>Choose a faith tradition, open its scripture, read page by page, or let your device read it aloud. When you return, your place is waiting.</p>
         <div class="hero-actions">
-          <a class="button primary hero-button" href="#library">Choose a text <svg><use href="#i-arrow"/></svg></a>
+          <a class="button primary hero-button" href="#library">Choose your faith tradition <svg><use href="#i-arrow"/></svg></a>
           <span class="hero-proof"><svg><use href="#i-shield"/></svg> Your reading place stays on this device.</span>
         </div>
         <div class="hero-stats" aria-label="Read Aloud benefits">
@@ -103,7 +104,7 @@
     <section id="library" class="library" aria-labelledby="library-title">
       <div class="section-kicker"><span>01</span><i></i><span>YOUR LIBRARY</span></div>
       <div class="section-heading">
-        <div><h2 id="library-title">Choose a tradition.<br><em>Open the text.</em></h2><p class="section-lede">Every reader is free. Every edition is identified. Nothing here is generated scripture.</p></div>
+        <div><h2 id="library-title">Choose your faith tradition.<br><em>Then open the text.</em></h2><p class="section-lede">Every reader is free. Every edition is identified. Nothing here is generated scripture.</p></div>
         <div class="library-promise"><svg><use href="#i-shield"/></svg><span><strong>No login wall.</strong><br>No ads. No subscription.</span></div>
       </div>
       <div id="library-grid" class="library-grid" aria-busy="true">
@@ -120,7 +121,7 @@
       <div class="section-kicker"><span>02</span><i></i><span>HOW IT WORKS</span></div>
       <div class="how-heading"><h2 id="how-title">Reading without the friction.</h2><p>No profile to create. No app to learn. Open a text and begin.</p></div>
       <div class="how-grid">
-        <article><span class="step-number">01</span><div class="step-icon"><svg><use href="#i-book"/></svg></div><h3>Pick a tradition</h3><p>Choose the scripture you want to explore and jump to a book, chapter, verse, or passage.</p></article>
+        <article><span class="step-number">01</span><div class="step-icon"><svg><use href="#i-book"/></svg></div><h3>Choose your faith tradition</h3><p>Choose the scripture you want to explore and jump to a book, chapter, verse, or passage.</p></article>
         <article><span class="step-number">02</span><div class="step-icon"><svg><use href="#i-volume"/></svg></div><h3>Read or listen</h3><p>Turn pages yourself or press <strong>Read aloud</strong> and use the voices already available on your device.</p></article>
         <article><span class="step-number">03</span><div class="step-icon"><svg><use href="#i-check"/></svg></div><h3>Return to your place</h3><p>Your latest reading position can be stored in this browser so the next visit starts where you stopped.</p></article>
       </div>
@@ -156,6 +157,7 @@
   <div class="footer-bottom"><span>Free to use · No advertising · No account required</span><span>Read Aloud</span></div>
 </div>
 
+<button id="mobile-continue" class="mobile-continue" hidden><svg><use href="#i-book"/></svg><span><small>YOUR PLACE IS WAITING</small><strong>Continue reading</strong></span><svg><use href="#i-arrow"/></svg></button>
 <div id="global-notice" role="status" class="global-notice" hidden></div>
 
 <dialog id="reader" class="reader" aria-labelledby="reader-title">
@@ -194,7 +196,7 @@
   </div>
 </dialog>
 
-<dialog id="settings" class="small-dialog" aria-labelledby="settings-title"><div class="small-dialog-content"><header class="dialog-heading"><div><span class="eyebrow">MAKE YOURSELF AT HOME</span><h2 id="settings-title">Your reading space</h2></div><button class="icon-button" data-close="settings" aria-label="Close settings"><svg><use href="#i-close"/></svg></button></header><label class="setting-label">Page appearance<select id="theme"><option value="paper">Soft paper</option><option value="sepia">Warm sepia</option><option value="night">Night reading</option></select></label><label class="setting-label">Text size <span id="font-value"></span><input id="font-size" type="range" min="18" max="32" step="1"></label><label class="setting-label">Read-aloud voice<select id="voice"><option value="">Device default (English)</option></select></label><p class="setting-help">Computer-generated narration. Available voices and pronunciation depend on your device. Some voices use your device provider’s online service.</p><label class="checkbox-label"><input id="continuous" type="checkbox">Keep reading onto the next page</label><label class="setting-label">Stop listening after<select id="sleep-timer"><option value="0">No timer</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select></label><hr><label class="checkbox-label"><input id="remember" type="checkbox">Remember my place on this device</label><p class="setting-help">Progress is saved in this browser, not in an account. Clearing site data, private browsing, or switching devices can remove access to it. A backup lets you take your place with you.</p><div class="settings-buttons"><button id="export-progress" class="button subtle">Save a backup</button><button id="import-progress" class="button subtle">Restore backup</button><input id="import-file" type="file" accept=".json,application/json" hidden></div><button id="clear-progress" class="text-button danger">Forget my reading history</button><p id="settings-status" role="status"></p></div></dialog>
+<dialog id="settings" class="small-dialog" aria-labelledby="settings-title"><div class="small-dialog-content"><header class="dialog-heading"><div><span class="eyebrow">MAKE YOURSELF AT HOME</span><h2 id="settings-title">Your reading space</h2></div><button class="icon-button" data-close="settings" aria-label="Close settings"><svg><use href="#i-close"/></svg></button></header><label class="setting-label">Page appearance<select id="theme"><option value="paper">Soft paper</option><option value="sepia">Warm sepia</option><option value="night">Night reading</option></select></label><label class="setting-label">Text size <span id="font-value"></span><input id="font-size" type="range" min="18" max="32" step="1"></label><label class="setting-label">Read-aloud voice<select id="voice"><option value="">Device default (English)</option></select></label><p class="setting-help">Computer-generated narration. Available voices and pronunciation depend on your device. Some voices use your device provider’s online service.</p><div class="voice-test-row"><button id="test-voice" class="button subtle" type="button"><svg><use href="#i-volume"/></svg> Test my voice</button><span id="voice-test-status" role="status">Use this before a long listening session.</span></div><label class="checkbox-label"><input id="continuous" type="checkbox">Keep reading onto the next page</label><label class="setting-label">Stop listening after<select id="sleep-timer"><option value="0">No timer</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select></label><hr><label class="checkbox-label"><input id="remember" type="checkbox">Remember my place on this device</label><p class="setting-help">Progress is saved in this browser, not in an account. Clearing site data, private browsing, or switching devices can remove access to it. A backup lets you take your place with you.</p><div class="settings-buttons"><button id="export-progress" class="button subtle">Save a backup</button><button id="import-progress" class="button subtle">Restore backup</button><input id="import-file" type="file" accept=".json,application/json" hidden></div><button id="clear-progress" class="text-button danger">Forget my reading history</button><p id="settings-status" role="status"></p></div></dialog>
 
 <dialog id="information" class="small-dialog" aria-labelledby="information-title"><div class="small-dialog-content"><header class="dialog-heading"><h2 id="information-title"></h2><button class="icon-button" data-close="information" aria-label="Close information"><svg><use href="#i-close"/></svg></button></header><div id="information-content" class="information-content"></div></div></dialog>
 

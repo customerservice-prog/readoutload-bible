@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const icon = id => `<svg aria-hidden="true"><use href="#i-${id}"/></svg>`;
 let storage; try { storage = window.localStorage; } catch {}
 let {state, available: storageAvailable} = readState(storage);
-let works = [], activeWork = null, activeBook = null, bookIndex = 0, chapterIndex = 0, selectedVerse = 0, pages = [], pageIndex = 0, busy = false, requestToken = 0, suppressScrollUntil = 0;
+let works = [], activeWork = null, activeBook = null, bookIndex = 0, chapterIndex = 0, selectedVerse = 0, pages = [], pageIndex = 0, busy = false, requestToken = 0, suppressScrollUntil = 0, deepLinkHandled = false;
 const bookCache = new Map();
 const speechSupported = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 const synth = speechSupported ? window.speechSynthesis : null;
@@ -39,7 +39,9 @@ function message(text) { $('reader-message').textContent = text; $('reader-messa
 function showDialog(id) { if (!$(id).open) $(id).showModal(); }
 function updateHome() {
   const saved = state.remember && state.progress[state.lastWork]; const work = works.find(w=>w.id===state.lastWork);
-  $('continue-section').hidden = !(saved && work);
+  const hasSavedPlace = Boolean(saved && work);
+  $('continue-section').hidden = !hasSavedPlace;
+  for (const id of ['header-continue','mobile-continue']) if ($(id)) $(id).hidden = !hasSavedPlace;
   if (saved && work) {
     const book = work.books.find(b=>b.id===saved.book);
     $('continue-title').textContent = work.books.length > 1 ? `${book?.name || work.title} ${saved.chapter}` : `${work.title} · ${work.chapterLabel} ${saved.chapter}`;
@@ -61,6 +63,14 @@ async function loadLibrary() {
     $('library-grid').innerHTML = works.map((work,index)=>`<button class="tradition-card ${index===0?'featured':''}" data-work="${esc(work.id)}" aria-label="Open ${esc(work.religion)}: ${esc(work.title)}"><span class="book-cover" aria-hidden="true">${icon('book')}</span><span class="card-copy"><span class="eyebrow">${esc(work.religion)}</span><h3>${esc(work.title)}</h3><p>${esc(work.subtitle)}<br>${esc(work.edition)}</p><span class="card-resume" data-for="${esc(work.id)}" hidden></span></span><svg class="card-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></button>`).join('');
     document.querySelectorAll('[data-work]').forEach(button=>button.addEventListener('click',()=>openWork(button.dataset.work)));
     updateHome();
+    if (!deepLinkHandled) {
+      deepLinkHandled = true;
+      const requested = new URLSearchParams(location.hash.slice(1)).get('read');
+      if (requested && works.some(work=>work.id===requested)) {
+        history.replaceState(null,'',location.pathname+location.search);
+        await openWork(requested);
+      }
+    }
   } catch {
     $('library-grid').innerHTML = '<div class="load-message" role="alert">The library could not be loaded. Your saved places have not been changed.<br><button id="retry-library" class="button subtle">Try again</button></div>';
     $('retry-library').addEventListener('click', loadLibrary);
@@ -170,7 +180,7 @@ function beginSpeech() {
   if(busy||!chapter()||!speechSupported)return;
   if(['playing','starting'].includes(speechState)){pauseSpeech();return;}
   if(speechState!=='paused')chunkIndex=0;
-  const token=++audioToken;synth.cancel();speechState='starting';message('');updateAudioUI();
+  const token=++audioToken;synth.cancel();synth.resume?.();speechState='starting';message('');updateAudioUI();
   $('audio-status').textContent='Starting your device’s voice…';
   if(sleepMinutes){clearTimeout(sleepTimer);sleepTimer=setTimeout(()=>pauseSpeech('Sleep timer finished. Your place is saved.'),sleepMinutes*60000);}
   speakUnit(token);
@@ -205,13 +215,27 @@ function populateVoices() {
   const voices=(synth?.getVoices()||[]).filter(v=>/^en\b/i.test(v.lang));
   $('voice').replaceChildren(new Option('Device default (English)',''),...voices.map(v=>new Option(`${v.name}${v.localService?' · device':' · online'}`,v.voiceURI)));
   $('voice').value=voices.some(v=>v.voiceURI===state.preferences.voice)?state.preferences.voice:'';
+  if ($('test-voice')) $('test-voice').disabled=!speechSupported;
 }
-function openSettings() {if(['playing','starting'].includes(speechState))pauseSpeech('Paused while settings are open');applyPreferences();populateVoices();$('settings-status').textContent='';showDialog('settings');}
+function testVoice() {
+  if(!speechSupported){$('voice-test-status').textContent='Read aloud is not supported in this browser.';return;}
+  synth.cancel();synth.resume?.();
+  const sample=new SpeechSynthesisUtterance('Read Aloud voice check. Your listening voice is ready.');
+  sample.lang='en-US';sample.rate=state.preferences.rate;
+  const voices=synth.getVoices(),preferred=voices.find(v=>v.voiceURI===$('voice').value&&/^en\b/i.test(v.lang)),fallback=voices.find(v=>/^en\b/i.test(v.lang)&&v.default)||voices.find(v=>/^en\b/i.test(v.lang));
+  if(preferred||fallback)sample.voice=preferred||fallback;
+  $('voice-test-status').textContent='Starting voice test…';
+  sample.onstart=()=>{$('voice-test-status').textContent='Voice started. If you can hear this, read aloud is ready.';};
+  sample.onend=()=>{$('voice-test-status').textContent='Voice test finished successfully.';};
+  sample.onerror=event=>{$('voice-test-status').textContent=`Voice test failed (${event.error||'voice unavailable'}). Try another voice or browser.`;};
+  synth.speak(sample);
+}
+function openSettings() {if(['playing','starting'].includes(speechState))pauseSpeech('Paused while settings are open');applyPreferences();populateVoices();$('settings-status').textContent='';$('voice-test-status').textContent=speechSupported?'Use this before a long listening session.':'Read aloud is not supported in this browser.';showDialog('settings');}
 function information(title,html) {if(['playing','starting'].includes(speechState))pauseSpeech();$('information-title').textContent=title;$('information-content').innerHTML=html;showDialog('information');}
 function sources(only=null) {
   information('Texts & editions','<p>Scripture is reproduced from identified editions, not generated by AI. Translations and religious canons differ. The library does not claim to contain every religion or every sacred text.</p>'+(only?[only]:works).map(work=>`<section><h3>${esc(work.title)}</h3><p><strong>${esc(work.edition)}</strong></p><p>${esc(work.detail)}</p><p>${esc(work.rights)}</p><p><a href="${esc(work.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source & edition information ↗</a> · <a href="${esc(work.originalFile)}" target="_blank" rel="noopener noreferrer">Original source file</a></p></section>`).join('')+'<p>For use outside the United States, check applicable copyright rules. This site is free and non-commercial; some source permissions specifically require that.</p>');
 }
-$('continue-reading').addEventListener('click',()=>openWork(state.lastWork));
+for(const id of ['continue-reading','header-continue','mobile-continue']) $(id)?.addEventListener('click',()=>openWork(state.lastWork));
 $('close-reader').addEventListener('click',()=>$('reader').close());
 $('reader').addEventListener('close',()=>{requestToken++;stopSpeech();updateHome();});
 $('reader').addEventListener('cancel',()=>stopSpeech());
@@ -235,7 +259,8 @@ for(const id of ['open-settings','reader-settings'])$(id).addEventListener('clic
 for(const button of document.querySelectorAll('[data-close]'))button.addEventListener('click',()=>$(button.dataset.close).close());
 $('theme').addEventListener('change',()=>{state.preferences.theme=$('theme').value;applyPreferences();persist();});
 $('font-size').addEventListener('input',()=>{state.preferences.fontSize=Number($('font-size').value);applyPreferences();persist();});
-$('voice').addEventListener('change',()=>{state.preferences.voice=$('voice').value;persist();});
+$('voice').addEventListener('change',()=>{state.preferences.voice=$('voice').value;$('voice-test-status').textContent='Voice changed · test it before listening.';persist();});
+$('test-voice').addEventListener('click',testVoice);
 $('speed').addEventListener('change',()=>{const running=speechState!=='idle';state.preferences.rate=Number($('speed').value);if(running)pauseSpeech('Speed changed · press Resume');persist();});
 $('continuous').addEventListener('change',()=>{state.preferences.continuous=$('continuous').checked;persist();});
 $('sleep-timer').addEventListener('change',()=>{sleepMinutes=Number($('sleep-timer').value);});

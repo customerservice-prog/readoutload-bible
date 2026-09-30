@@ -19,6 +19,8 @@ with sync_playwright() as p:
     context.add_init_script(SPEECH_MOCK)
     page=context.new_page(); errors=[]
     page.on('pageerror',lambda error:errors.append(str(error)))
+    page.goto(BASE+'/bible'); assert page.locator('a[href="/#read=bible-asv"]').count()>=2
+    page.locator('a[href="/#read=bible-asv"]').first.click();page.locator('#reader').wait_for();page.locator('.verse').first.wait_for();assert page.locator('#reader-title').inner_text()=='The Holy Bible';page.locator('#close-reader').click()
     page.goto(BASE); page.locator('[data-work]').first.wait_for()
     assert page.locator('[data-work]').count()==5
     page.screenshot(path=str(OUT/'desktop-library.png'),full_page=True)
@@ -30,7 +32,7 @@ with sync_playwright() as p:
     page.locator('#chapter-select').select_option('2');page.locator('.verse').first.wait_for()
     page.locator('#verse-select').select_option('8')
     assert page.locator('#verse-select').input_value()=='8'
-    page.reload();page.locator('#continue-reading').wait_for();page.locator('#continue-reading').click();page.locator('.verse').first.wait_for()
+    page.reload();page.locator('#continue-reading').wait_for();assert page.locator('#header-continue').is_visible();page.locator('#continue-reading').click();page.locator('.verse').first.wait_for()
     assert page.locator('#chapter-select').input_value()=='2'
     assert page.locator('#verse-select').input_value()=='8'
     page.locator('#read-aloud').click();page.get_by_role('button',name='Pause',exact=True).wait_for()
@@ -42,7 +44,7 @@ with sync_playwright() as p:
     assert len(page.evaluate('window.__spoken'))>=3
     page.locator('#stop-audio').click();assert page.locator('#read-aloud').inner_text()=='Read aloud'
     page.screenshot(path=str(OUT/'desktop-reader.png'))
-    page.locator('#reader-settings').click();page.locator('#theme').select_option('night')
+    page.locator('#reader-settings').click();assert page.locator('#test-voice').is_visible();page.locator('#theme').select_option('night')
     page.locator('#font-size').fill('29');page.locator('#font-size').dispatch_event('input')
     page.get_by_role('button',name='Close settings',exact=True).click()
     assert page.locator('html').get_attribute('data-theme')=='night'
