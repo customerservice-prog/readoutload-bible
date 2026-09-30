@@ -138,7 +138,7 @@ async function getBook(work, book) {
 }
 async function openWork(id) {
   const work = works.find(w=>w.id===id); if (!work) return;
-  stopSpeech(); activeWork = work; activeBook = null;
+  stopSpeech(); activeWork = work; activeBook = null; $('reader').dataset.work = work.id;
   $('reader-title').textContent = work.title; $('reader-tradition').textContent = work.religion;
   $('reader-edition').textContent = work.edition; $('chapter-label').textContent = work.chapterLabel; $('verse-label').textContent = work.unit;
   $('book-field').hidden = work.books.length === 1;
