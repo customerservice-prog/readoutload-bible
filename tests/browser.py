@@ -10,7 +10,8 @@ SPEECH_MOCK="""(() => {
   window.__spoken=[]; window.__utterance=null;
   class Utterance { constructor(text){this.text=text;} }
   Object.defineProperty(window,'SpeechSynthesisUtterance',{value:Utterance,configurable:true});
-  Object.defineProperty(window,'speechSynthesis',{value:{getVoices:()=>[{name:'Test English',lang:'en-US',voiceURI:'test',localService:true,default:true}],addEventListener:()=>{},cancel:()=>{window.__utterance=null;},speak:u=>{window.__utterance=u;window.__spoken.push(u.text);setTimeout(()=>{if(window.__utterance===u)u.onstart?.();},0);}},configurable:true});
+  Object.defineProperty(window,'speechSynthesis',{value:{getVoices:()=>[{name:'Test English',lang:'en-US',voiceURI:'test',localService:true,default:true}],addEventListener:()=>{},resume:()=>{},cancel:()=>{window.__utterance=null;},speak:u=>{window.__utterance=u;window.__spoken.push(u.text);setTimeout(()=>{if(window.__utterance===u)u.onstart?.();},0);}},configurable:true});
+  Object.defineProperty(navigator,'clipboard',{value:{writeText:async t=>{window.__copied=t;}},configurable:true});
 })();"""
 with sync_playwright() as p:
     executable=os.getenv('CHROMIUM_PATH')
@@ -44,7 +45,7 @@ with sync_playwright() as p:
     assert len(page.evaluate('window.__spoken'))>=3
     page.locator('#stop-audio').click();assert page.locator('#read-aloud').inner_text()=='Read aloud'
     page.screenshot(path=str(OUT/'desktop-reader.png'))
-    page.locator('#reader-settings').click();assert page.locator('#test-voice').is_visible();page.locator('#theme').select_option('night')
+    page.locator('#reader-settings').click();assert page.locator('#test-voice').is_visible();page.locator('#copy-progress-link').click();page.wait_for_timeout(50);copied=page.evaluate('window.__copied');assert '#restore=' in copied;page.locator('#theme').select_option('night')
     page.locator('#font-size').fill('29');page.locator('#font-size').dispatch_event('input')
     page.get_by_role('button',name='Close settings',exact=True).click()
     assert page.locator('html').get_attribute('data-theme')=='night'
@@ -57,7 +58,7 @@ with sync_playwright() as p:
     assert not errors,errors
     context.close()
     mobile=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
-    mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.goto(BASE);page.locator('[data-work]').first.wait_for()
+    mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.on('dialog',lambda dialog:dialog.accept());page.goto(copied);page.locator('#continue-reading').wait_for();page.locator('[data-work]').first.wait_for()
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     page.screenshot(path=str(OUT/'mobile-library.png'),full_page=True)
     page.locator('[data-work="quran-pickthall"]').click();page.locator('.verse').first.wait_for()
