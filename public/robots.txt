@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://read-aloud-production-148a.up.railway.app/sitemap.xml

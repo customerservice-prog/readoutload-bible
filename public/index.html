@@ -1,46 +1,197 @@
 <!doctype html>
 <html lang="en" data-theme="paper">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f7f7f0">
-  <title>Read Aloud — A quiet place for scripture</title>
-  <meta name="description" content="A free place to read and listen to scripture. Choose a faith tradition, turn the pages, and continue where you left off. No account needed.">
-  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./styles.css">
-  <script src="./app.js" type="module"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3efe5">
+  <meta name="color-scheme" content="light dark">
+  <title>Read Aloud Scripture Online — Free Bible, Quran, Tanakh & More</title>
+  <meta name="description" content="Read and listen to the Bible, Tanakh, Quran in English, Bhagavad Gita, and Dhammapada for free. No account, no ads, and your place is saved on your device.">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="application-name" content="Read Aloud">
+  <link rel="canonical" href="https://read-aloud-production-148a.up.railway.app/">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Read Aloud">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Read Aloud — Free Scripture Reader">
+  <meta property="og:description" content="Read sacred texts page by page, listen aloud, and return to the exact place you stopped. Free, private, and no account required.">
+  <meta property="og:url" content="https://read-aloud-production-148a.up.railway.app/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Read Aloud — Free Scripture Reader">
+  <meta name="twitter:description" content="Bible, Tanakh, Quran in English, Bhagavad Gita, and Dhammapada — free to read and listen to online.">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" type="module"></script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://read-aloud-production-148a.up.railway.app/#website","url":"https://read-aloud-production-148a.up.railway.app/","name":"Read Aloud","description":"A free, private online scripture reader with device text-to-speech and saved reading progress.","inLanguage":"en"},{"@type":"WebApplication","@id":"https://read-aloud-production-148a.up.railway.app/#app","name":"Read Aloud","url":"https://read-aloud-production-148a.up.railway.app/","applicationCategory":"LifestyleApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Read sacred texts online","Listen with device text-to-speech","Save your reading place on your device","No account required"],"inLanguage":"en"},{"@type":"ItemList","name":"Scripture library","itemListElement":[{"@type":"ListItem","position":1,"url":"https://read-aloud-production-148a.up.railway.app/bible","name":"The Holy Bible — American Standard Version"},{"@type":"ListItem","position":2,"url":"https://read-aloud-production-148a.up.railway.app/tanakh","name":"The Tanakh — Jewish Publication Society 1917"},{"@type":"ListItem","position":3,"url":"https://read-aloud-production-148a.up.railway.app/quran","name":"The Quran — Pickthall English meaning"},{"@type":"ListItem","position":4,"url":"https://read-aloud-production-148a.up.railway.app/bhagavad-gita","name":"Bhagavad Gita — The Song Celestial"},{"@type":"ListItem","position":5,"url":"https://read-aloud-production-148a.up.railway.app/dhammapada","name":"The Dhammapada — F. Max Müller English translation"}]}]}</script>
 </head>
 <body>
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
-<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1Zm0 0v15"/></symbol>
-<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
-<symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
-<symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
-<symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
-<symbol id="i-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6Z"/></symbol>
-<symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 4 5 9H2v6h3l6 5ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
-<symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></symbol>
-<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
-<symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c-5-11 3-14 15-15 0 12-4 18-14 13m-3 4L15 9"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1Zm0 0v15"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6Z"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 4 5 9H2v6h3l6 5ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c-5-11 3-14 15-15 0 12-4 18-14 13m-3 4L15 9"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6l8-3Zm-3 9 2 2 4-5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2c.8 5.3 3.7 8.2 9 9-5.3.8-8.2 3.7-9 9-.8-5.3-3.7-8.2-9-9 5.3-.8 8.2-3.7 9-9Z"/></symbol>
 </defs></svg>
+
 <a href="#library" class="skip-link">Skip to scripture library</a>
+<div class="ambient ambient-one" aria-hidden="true"></div>
+<div class="ambient ambient-two" aria-hidden="true"></div>
+
 <div class="site-shell">
-<header class="site-header"><a class="brand" href="./" aria-label="Read Aloud home"><span class="brand-mark"><svg><use href="#i-book"/></svg></span><span>read <em>aloud.</em></span></a><nav aria-label="Main navigation"><a href="#library">The library</a><button id="open-settings" class="text-button">Settings <svg><use href="#i-settings"/></svg></button></nav></header>
-<main>
-<section class="hero" aria-labelledby="hero-title"><div class="eyebrow"><span class="small-dot"></span> FREE TO READ. OPEN TO EVERYONE.</div><h1 id="hero-title">A quiet moment.<br><em>A page at a time.</em></h1><p>Find a little space for what matters. Choose a faith tradition,<br class="desktop-break"> open its scripture, and read or listen at your own pace.</p><div class="hero-note"><svg><use href="#i-book"/></svg>Read your way <span>·</span><svg><use href="#i-volume"/></svg>Listen along <span>·</span><svg><use href="#i-check"/></svg>Pick up where you left off</div></section>
-<section id="continue-section" class="continue-section" hidden aria-label="Continue reading"><div class="continue-icon"><svg><use href="#i-book"/></svg></div><div><span class="eyebrow">YOUR PLACE IS WAITING</span><h2 id="continue-title"></h2><p id="continue-detail"></p></div><button id="continue-reading" class="button primary">Continue reading <svg><use href="#i-arrow"/></svg></button></section>
-<section id="library" class="library" aria-labelledby="library-title"><div class="section-heading"><div><span class="eyebrow">THE LIBRARY</span><h2 id="library-title">Where would you like to begin?</h2></div><p>Choose a tradition to open your reader.</p></div><div id="library-grid" class="library-grid" aria-busy="true"><div class="load-message" role="status">Opening the library…</div></div><p class="library-note">Everyone is welcome to explore. These are selected English editions, not every tradition or every canon.</p></section>
-<section class="reassurance"><svg><use href="#i-leaf"/></svg><div><h2>Nothing to sign up for. Nothing to keep up with.</h2><p>Just a page, a voice, and a little time for yourself.</p></div></section>
-</main>
-<footer class="site-footer"><span>A free space to read & reflect.</span><div><button id="open-sources" class="text-button">Texts & editions</button><button id="open-privacy" class="text-button">Your privacy</button></div></footer>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Read Aloud home">
+      <span class="brand-mark"><svg><use href="#i-book"/></svg></span>
+      <span class="brand-copy">read <em>aloud.</em><small>scripture, simply</small></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#library">Library</a>
+      <a href="#how-it-works">How it works</a>
+      <button id="open-settings" class="text-button">Settings <svg><use href="#i-settings"/></svg></button>
+      <a class="nav-cta" href="#library">Start reading</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow hero-eyebrow"><span class="small-dot"></span> FREE · PRIVATE · NO ACCOUNT</div>
+        <h1 id="hero-title">Read sacred texts.<br><em>Or simply press play.</em></h1>
+        <p>Choose a faith tradition, open its scripture, read page by page, or let your device read it aloud. When you return, your place is waiting.</p>
+        <div class="hero-actions">
+          <a class="button primary hero-button" href="#library">Choose a text <svg><use href="#i-arrow"/></svg></a>
+          <span class="hero-proof"><svg><use href="#i-shield"/></svg> Your reading place stays on this device.</span>
+        </div>
+        <div class="hero-stats" aria-label="Read Aloud benefits">
+          <span><strong>5</strong> traditions</span>
+          <span><strong>$0</strong> to use</span>
+          <span><strong>0</strong> sign-ups</span>
+          <span><strong>1 tap</strong> to listen</span>
+        </div>
+      </div>
+      <div class="hero-stage" aria-hidden="true">
+        <div class="hero-glow"></div>
+        <div class="preview-window">
+          <div class="preview-top"><span class="preview-logo"><svg><use href="#i-book"/></svg></span><span>Read Aloud</span><span class="preview-dots">•••</span></div>
+          <div class="preview-paper">
+            <span class="eyebrow">THE HOLY BIBLE</span>
+            <h2>Genesis 1</h2>
+            <div class="preview-line long"></div><div class="preview-line"></div><div class="preview-line medium"></div>
+            <div class="preview-verse"><sup>1</sup> In the beginning God created the heavens and the earth.</div>
+            <div class="preview-line medium"></div><div class="preview-line long"></div>
+          </div>
+          <div class="preview-controls"><span><svg><use href="#i-volume"/></svg></span><strong>Read aloud</strong><i></i><small>1× speed</small></div>
+        </div>
+        <div class="floating-note note-one"><svg><use href="#i-check"/></svg><span><strong>Place saved</strong><small>Come back anytime</small></span></div>
+        <div class="floating-note note-two"><svg><use href="#i-spark"/></svg><span><strong>No account</strong><small>Open and read</small></span></div>
+      </div>
+    </section>
+
+    <section id="continue-section" class="continue-section" hidden aria-label="Continue reading">
+      <div class="continue-badge"><svg><use href="#i-book"/></svg></div>
+      <div class="continue-copy"><span class="eyebrow">CONTINUE WHERE YOU STOPPED</span><h2 id="continue-title"></h2><p id="continue-detail"></p></div>
+      <button id="continue-reading" class="button primary">Continue reading <svg><use href="#i-arrow"/></svg></button>
+    </section>
+
+    <section id="library" class="library" aria-labelledby="library-title">
+      <div class="section-kicker"><span>01</span><i></i><span>YOUR LIBRARY</span></div>
+      <div class="section-heading">
+        <div><h2 id="library-title">Choose a tradition.<br><em>Open the text.</em></h2><p class="section-lede">Every reader is free. Every edition is identified. Nothing here is generated scripture.</p></div>
+        <div class="library-promise"><svg><use href="#i-shield"/></svg><span><strong>No login wall.</strong><br>No ads. No subscription.</span></div>
+      </div>
+      <div id="library-grid" class="library-grid" aria-busy="true"><div class="load-message" role="status">Opening the library…</div></div>
+      <p class="library-note">Everyone is welcome to explore. These are selected English editions, not every tradition, translation, or canon.</p>
+    </section>
+
+    <section id="how-it-works" class="how-section" aria-labelledby="how-title">
+      <div class="section-kicker"><span>02</span><i></i><span>HOW IT WORKS</span></div>
+      <div class="how-heading"><h2 id="how-title">Reading without the friction.</h2><p>No profile to create. No app to learn. Open a text and begin.</p></div>
+      <div class="how-grid">
+        <article><span class="step-number">01</span><div class="step-icon"><svg><use href="#i-book"/></svg></div><h3>Pick a tradition</h3><p>Choose the scripture you want to explore and jump to a book, chapter, verse, or passage.</p></article>
+        <article><span class="step-number">02</span><div class="step-icon"><svg><use href="#i-volume"/></svg></div><h3>Read or listen</h3><p>Turn pages yourself or press <strong>Read aloud</strong> and use the voices already available on your device.</p></article>
+        <article><span class="step-number">03</span><div class="step-icon"><svg><use href="#i-check"/></svg></div><h3>Return to your place</h3><p>Your latest reading position can be stored in this browser so the next visit starts where you stopped.</p></article>
+      </div>
+    </section>
+
+    <section class="discover-section" aria-labelledby="discover-title">
+      <div class="discover-copy">
+        <span class="eyebrow">EXPLORE THE COLLECTION</span>
+        <h2 id="discover-title">Five texts. One calm reading space.</h2>
+        <p>Learn what edition is included, what it contains, and how the read-aloud experience works before you open the reader.</p>
+      </div>
+      <div class="discover-links">
+        <a href="/bible"><span>Christianity</span><strong>The Holy Bible</strong><svg><use href="#i-arrow"/></svg></a>
+        <a href="/tanakh"><span>Judaism</span><strong>The Tanakh</strong><svg><use href="#i-arrow"/></svg></a>
+        <a href="/quran"><span>Islam</span><strong>The Quran</strong><svg><use href="#i-arrow"/></svg></a>
+        <a href="/bhagavad-gita"><span>Hinduism</span><strong>Bhagavad Gita</strong><svg><use href="#i-arrow"/></svg></a>
+        <a href="/dhammapada"><span>Buddhism</span><strong>The Dhammapada</strong><svg><use href="#i-arrow"/></svg></a>
+      </div>
+    </section>
+
+    <section class="reassurance">
+      <div class="reassurance-icon"><svg><use href="#i-leaf"/></svg></div>
+      <div><span class="eyebrow">A QUIETER WAY TO READ</span><h2>Nothing to sign up for. Nothing to keep up with.</h2><p>Just a page, a voice, and a little time for yourself.</p></div>
+      <a class="button subtle" href="#library">Open the library <svg><use href="#i-arrow"/></svg></a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-mark"><svg><use href="#i-book"/></svg></span><span class="brand-copy">read <em>aloud.</em></span></a><p>A free, non-commercial place to read and listen to selected sacred texts.</p></div>
+    <div class="footer-links"><strong>Explore</strong><a href="/bible">Bible</a><a href="/tanakh">Tanakh</a><a href="/quran">Quran</a><a href="/bhagavad-gita">Bhagavad Gita</a><a href="/dhammapada">Dhammapada</a></div>
+    <div class="footer-links"><strong>About</strong><button id="open-sources" class="text-button">Texts & editions</button><button id="open-privacy" class="text-button">Privacy</button><a href="/sitemap.xml">Sitemap</a></div>
+  </footer>
+  <div class="footer-bottom"><span>Free to use · No advertising · No account required</span><span>Read Aloud</span></div>
 </div>
+
 <div id="global-notice" role="status" class="global-notice" hidden></div>
+
 <dialog id="reader" class="reader" aria-labelledby="reader-title">
-<div class="reader-shell"><header class="reader-header"><div class="reader-brand"><svg><use href="#i-book"/></svg><div><span id="reader-tradition" class="eyebrow"></span><h2 id="reader-title"></h2></div></div><div class="reader-actions"><button id="reader-settings" class="icon-button" aria-label="Reader settings"><svg><use href="#i-settings"/></svg></button><button id="close-reader" class="icon-button" aria-label="Close reader"><svg><use href="#i-close"/></svg></button></div></header>
-<div class="reader-toolbar"><label id="book-field">Book<select id="book-select" aria-label="Choose a book"></select></label><label><span id="chapter-label">Chapter</span><select id="chapter-select" aria-label="Choose a chapter"></select></label><label class="verse-field"><span id="verse-label">Verse</span><select id="verse-select" aria-label="Choose a verse or passage"></select></label><button id="reader-edition" class="edition-button" title="View edition and source information"></button></div>
-<div id="reading-scroll" class="reading-scroll"><div id="reading-content" class="reading-content" tabindex="-1"></div></div>
-<div id="reader-message" class="reader-message" role="status" hidden></div>
-<footer class="reader-footer"><div class="page-navigation"><button id="prev-page" class="button subtle"><svg class="reverse"><use href="#i-arrow"/></svg><span>Previous</span></button><div class="page-info"><span id="page-label"></span><span id="saved-label" class="saved-label"></span></div><button id="next-page" class="button subtle"><span>Next page</span><svg><use href="#i-arrow"/></svg></button></div><div class="audio-bar"><button id="read-aloud" class="button primary"><svg><use href="#i-volume"/></svg><span>Read aloud</span></button><button id="stop-audio" class="icon-button" aria-label="Stop reading aloud" disabled><svg><use href="#i-stop"/></svg></button><span id="audio-status">Listen with your device’s voice</span><label class="speed-field"><span class="sr-only">Reading speed</span><select id="speed"><option value="0.75">0.75×</option><option value="1" selected>1× speed</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label></div></footer>
-</div></dialog>
+  <div class="reader-shell">
+    <header class="reader-header">
+      <div class="reader-brand"><span class="reader-logo"><svg><use href="#i-book"/></svg></span><div><span id="reader-tradition" class="eyebrow"></span><h2 id="reader-title"></h2></div></div>
+      <div class="reader-center-note"><span class="live-dot"></span> Your place saves as you read</div>
+      <div class="reader-actions"><button id="reader-settings" class="icon-button" aria-label="Reader settings"><svg><use href="#i-settings"/></svg></button><button id="close-reader" class="icon-button close-button" aria-label="Close reader"><svg><use href="#i-close"/></svg></button></div>
+    </header>
+
+    <div class="reader-toolbar">
+      <div class="location-controls">
+        <label id="book-field"><span>Book</span><select id="book-select" aria-label="Choose a book"></select></label>
+        <label><span id="chapter-label">Chapter</span><select id="chapter-select" aria-label="Choose a chapter"></select></label>
+        <label class="verse-field"><span id="verse-label">Verse</span><select id="verse-select" aria-label="Choose a verse or passage"></select></label>
+      </div>
+      <button id="reader-edition" class="edition-button" title="View edition and source information"></button>
+    </div>
+
+    <div id="reading-scroll" class="reading-scroll"><div id="reading-content" class="reading-content" tabindex="-1"></div></div>
+    <div id="reader-message" class="reader-message" role="status" hidden></div>
+
+    <footer class="reader-footer">
+      <div class="page-navigation">
+        <button id="prev-page" class="button subtle nav-button"><svg class="reverse"><use href="#i-arrow"/></svg><span>Previous</span></button>
+        <div class="page-info"><strong id="page-label"></strong><span id="saved-label" class="saved-label"></span></div>
+        <button id="next-page" class="button subtle nav-button"><span>Next page</span><svg><use href="#i-arrow"/></svg></button>
+      </div>
+      <div class="audio-bar">
+        <div class="audio-label"><span class="eyebrow">LISTEN</span><span id="audio-status">Uses your device’s voice</span></div>
+        <button id="read-aloud" class="button primary audio-primary"><svg><use href="#i-volume"/></svg><span>Read aloud</span></button>
+        <button id="stop-audio" class="icon-button stop-button" aria-label="Stop reading aloud" disabled><svg><use href="#i-stop"/></svg></button>
+        <label class="speed-field"><span>Speed</span><select id="speed"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label>
+      </div>
+    </footer>
+  </div>
+</dialog>
+
 <dialog id="settings" class="small-dialog" aria-labelledby="settings-title"><div class="small-dialog-content"><header class="dialog-heading"><div><span class="eyebrow">MAKE YOURSELF AT HOME</span><h2 id="settings-title">Your reading space</h2></div><button class="icon-button" data-close="settings" aria-label="Close settings"><svg><use href="#i-close"/></svg></button></header><label class="setting-label">Page appearance<select id="theme"><option value="paper">Soft paper</option><option value="sepia">Warm sepia</option><option value="night">Night reading</option></select></label><label class="setting-label">Text size <span id="font-value"></span><input id="font-size" type="range" min="18" max="32" step="1"></label><label class="setting-label">Read-aloud voice<select id="voice"><option value="">Device default (English)</option></select></label><p class="setting-help">Computer-generated narration. Available voices and pronunciation depend on your device. Some voices use your device provider’s online service.</p><label class="checkbox-label"><input id="continuous" type="checkbox">Keep reading onto the next page</label><label class="setting-label">Stop listening after<select id="sleep-timer"><option value="0">No timer</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select></label><hr><label class="checkbox-label"><input id="remember" type="checkbox">Remember my place on this device</label><p class="setting-help">Progress is saved in this browser, not in an account. Clearing site data, private browsing, or switching devices can remove access to it. A backup lets you take your place with you.</p><div class="settings-buttons"><button id="export-progress" class="button subtle">Save a backup</button><button id="import-progress" class="button subtle">Restore backup</button><input id="import-file" type="file" accept=".json,application/json" hidden></div><button id="clear-progress" class="text-button danger">Forget my reading history</button><p id="settings-status" role="status"></p></div></dialog>
+
 <dialog id="information" class="small-dialog" aria-labelledby="information-title"><div class="small-dialog-content"><header class="dialog-heading"><h2 id="information-title"></h2><button class="icon-button" data-close="information" aria-label="Close information"><svg><use href="#i-close"/></svg></button></header><div id="information-content" class="information-content"></div></div></dialog>
-<noscript><div class="noscript">Please enable JavaScript to use the page-by-page reader and save your place.</div></noscript>
-</body></html>
+
+<noscript><div class="noscript">Please enable JavaScript to use the page-by-page reader and save your place. You can still explore the individual text pages linked above.</div></noscript>
+</body>
+</html>
