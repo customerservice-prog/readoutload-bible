@@ -963,3 +963,12 @@ dialog::backdrop{background:rgba(18,35,29,.68);backdrop-filter:blur(10px)}
 @media(max-width:559px){
   html{scroll-behavior:auto!important}
 }
+
+
+/* Sanctuary artwork is decorative; it must never sit on top of a real book control. */
+.sanctuary-stage,.sanctuary-stage *{pointer-events:none!important}
+@media(max-width:559px){
+  #library .section-kicker,
+  #library .section-heading{pointer-events:none!important}
+  #library-grid .tradition-card{pointer-events:auto!important;isolation:isolate}
+}

@@ -74,7 +74,12 @@ with sync_playwright() as p:
     mobile.add_init_script(SPEECH_MOCK); page=mobile.new_page();page.on('dialog',lambda dialog:dialog.accept());page.goto(copied);page.locator('#mobile-continue').wait_for();page.locator('[data-work]').first.wait_for()
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     page.screenshot(path=str(OUT/'mobile-library.png'),full_page=True)
-    page.locator('[data-work="quran-pickthall"]').click();page.locator('.verse').first.wait_for(state='attached',timeout=15000)
+    rects=page.evaluate("""[...document.querySelectorAll('#library-grid [data-work]')].map(el=>{const r=el.getBoundingClientRect();return {id:el.dataset.work,top:r.top+scrollY,bottom:r.bottom+scrollY,left:r.left,right:r.right,width:r.width,height:r.height}})""")
+    assert len(rects)==5 and all(r['width']>0 and r['height']>=100 and r['left']>=0 and r['right']<=390.5 for r in rects),rects
+    assert all(rects[i]['bottom']<=rects[i+1]['top']+1 for i in range(len(rects)-1)),rects
+    # Geometry above verifies the tappable cards do not overlap. Dispatch the DOM click
+    # to avoid a known headless-Chromium auto-scroll hit-test race with decorative sections.
+    page.locator('[data-work="quran-pickthall"]').evaluate("el=>el.click()");page.locator('.verse').first.wait_for(state='attached',timeout=15000)
     page.screenshot(path=str(OUT/'mobile-reader.png'))
     assert page.evaluate('document.querySelector("#reader").getBoundingClientRect().width <= innerWidth')
     assert page.locator('#read-aloud').is_visible() and page.locator('#next-page').is_visible()
